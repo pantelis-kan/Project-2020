@@ -1,5 +1,7 @@
 int main(int argc, char const *argv[])
 {
-    //tesst
+    //tesstttt
+    cout << "in";
+    cout << "out";
     return 0;
 }
