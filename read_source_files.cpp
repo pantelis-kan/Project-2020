@@ -1,9 +1,18 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
+#include "read_source_files.hpp"
 
 using namespace std;
+
+
+int main(){
+
+	string filepath ("/home/sdi1300118/c_programs/Project-2020/train-images-idx3-ubyte");
+	//read_input_file(filepath.c_str());
+	read_input_file(filepath);
+	
+	return 0;
+
+}
+
 
 int reverseInteger (int i) 
 {
@@ -17,7 +26,7 @@ int reverseInteger (int i)
     return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 
-void read_input_file(const char* input_fp){			/*check that in main string is made with c_str()*/
+int read_input_file(string &input_fp){			/*check that in main string is made with c_str()*/
 
     ifstream myfile;
 	//string line;
@@ -48,20 +57,28 @@ void read_input_file(const char* input_fp){			/*check that in main string is mad
 	myfile.read((char*)&num_cols, sizeof(num_cols));
 	num_cols = reverseInteger(num_cols);
 	
+	cout << "Magic Number is:" << magic_number << endl;
+	cout << "Number of images is:" << number_of_images << endl;
+	cout << "Number of rows is:" << num_rows << endl;
+	cout << "Number of columns is:" << num_cols << endl;
 
 	/* Allocating the array with the images */
 	Point* array_with_images;
 	array_with_images = new Point [number_of_images];
 
 	/* Reading the images, pixel-by-pixel and storing them to the array */
-	for(int i=0; i < number_of_images; i++){
+	for(int i=0; i < 1; i++){	// change back to i < number_of_images
 	    for(int row = 0; row < num_rows; row++){
 	        for(int col = 0; col < num_cols; col++){
 	            unsigned char temp = 0;
 	            myfile.read((char*)&temp, sizeof(temp));
-				
+				array_with_images[i].AddtoPoint((int) temp);
+				//array_with_images[i].PrintPoint();
+				//cout << (int) temp << ", "; 
 	        }
 	    }
+		array_with_images[i].PrintPoint();
+		cout << endl;
 	}
 
 	myfile.close();
@@ -74,9 +91,5 @@ void read_input_file(const char* input_fp){			/*check that in main string is mad
 }
 
 void read_query_file(){
-
-
-
-
 
 }
