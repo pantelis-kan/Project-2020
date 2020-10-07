@@ -25,6 +25,8 @@ class Point_Array{
 		//long long int LSH_Manhattan( int M, const long long int m, double w, int position); 
 		int FillPoints(string &input_fp);
 
+		void PrintPoint(int position);
+
 		// compute g(x) , by concatenation of h1(x)...hk(x)
 		int Compute_g(int position,int k,int M, const long long int m, double w,int tablesize, double** s_params,int l); 
 

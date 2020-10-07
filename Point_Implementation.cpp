@@ -8,7 +8,7 @@ using namespace std;
 
 
 Point::Point(){
-
+	dimension = 784;
 }
 
 Point::~Point(){
@@ -19,15 +19,15 @@ Point::~Point(){
 
 int Point::get_dimension(){
 
-	return point.size();
+	return dimension;
 }
 
 
 
 void Point::PrintPoint(){
 
-		for(vector<int>::const_iterator j = point.begin(); j != point.end(); j++)
-			cout << *j << ' ';
+		for(int j = 0; j < dimension;  j++)
+			cout << point[j] << ' ';
 
 	
 		cout << endl << endl;
@@ -35,47 +35,40 @@ void Point::PrintPoint(){
 }
 
 
-void Point::AddtoPoint(int val){ // add val to point vector
+void Point::AddtoPoint(int pos,int val){ // add val to point vector
 
-	point.push_back(val);
-
-}
-
-
-void Point::DeletefromPoint(vector<int>::const_iterator index){
-
-	point.erase(index);
+	//cout << "Pushing " << val <<endl;
+	point[pos] = val;
 
 }
+
 
 
  // computes h(x) 
 long long int Point::LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k){ 	
 
-	long long int dimension = point.size();
-
 	
 	//std::uniform_real_distribution<double> distribution(0.0,w);
 
+	int Dimension = get_dimension();
 
-	int* coeff = new int[dimension];
+	int* coeff = new int[Dimension];
 	long long hash = 0;
 	long long result;
 	
 	//cout << "Random number from 0 to "<<w << " = " << FRandomGen(0.0,w,generator) << endl;
 
-	vector<int>::const_iterator it = point.begin();
 
 	//cout << "Chosen coefficients : "; 
 
 	//cout << current_k << endl;
 
-	for(int i = 0; i < dimension; i++){
+	for(int i = 0; i < Dimension; i++){
 
 		//cout <<  s_params[current_k][i] << endl;
-		coeff[i] = ceil( ((*it) - s_params[current_k][i]) / w );
+		coeff[i] = ceil( (point[i] - s_params[current_k][i]) / w );
 		//cout << coeff[i] << "  ";
-		++it;
+		
 	}
 
 
@@ -85,7 +78,7 @@ long long int Point::LSH_Manhattan(int M, const long long int m, double w, doubl
 	//cout << "M = " << M << endl;
 	
 	int k = 0;
-	for(int j = dimension-1; j >= 0; j--){
+	for(int j = Dimension-1; j >= 0; j--){
 		result = moduloMultiplication(powxy(m,k,M),coeff[j]%M,M); // (m^k mod M * aj mod M ) mod M
 		//cout << "Adding " << result <<endl;
 		hash += result%M; 
@@ -98,11 +91,6 @@ long long int Point::LSH_Manhattan(int M, const long long int m, double w, doubl
 }
 
 
-vector<int>::const_iterator Point::Start(){
-	
-	return point.begin();
-}
-
 
 
 double Distance(Point& v1, Point& v2, int metric){
@@ -110,22 +98,18 @@ double Distance(Point& v1, Point& v2, int metric){
 	double dist = 0.0;
 	double sum = 0.0;
 
+	int Dimension = v1.get_dimension();
+	
 
-	int dimension = v1.point.size();
-	vector<int>::const_iterator it1 = v1.point.begin();
-	vector<int>::const_iterator it2 = v2.point.begin();
-
-	for(int i = 0; i < dimension; i++){
+	for(int i = 0; i < Dimension; i++){
 		
-		sum = abs((*it1) - (*it2));
+		sum = abs(v1.point[i] - v2.point[i]);
 		sum = pow(sum,metric);
 
 
 		//cout << "Iteration "<< i << ". Vector numbers : " << (*it1)<<"  "<<(*it2)<< ". Adding  "<<sum<<endl;
 		dist += sum;
 		//cout << "Dist in while : " << dist <<endl;
-		++it1;
-		++it2;
 
 	}
 

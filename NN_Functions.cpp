@@ -60,7 +60,7 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 			// for each element in the bucket
 			for(int i = 0; i < size_of_bucket; i++ ){
 
-				if (i > 20*L) break; // 20*L are enough points
+				//if (i > 20*L) break; // 20*L are enough points
 
 				// pop id from the query's bucket
 				int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
@@ -111,7 +111,7 @@ void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q){
 	
 			distance = Distance(query_point,input_point,1);
 			
-			if(i < N/4) dist_sum += distance;
+			if(j == 0) dist_sum += distance;
 			//distance = Distance(input_point,query_point,1);
 
 			if (distance < min_distance){
@@ -122,11 +122,11 @@ void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q){
 	 	}
 	
 
-	//cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+	cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 
 	}
 
 	//cout << "distance sum : " << dist_sum <<endl;
-	//cout << "Best w : " << dist_sum/(num_of_points*num_of_points) << endl;
+	cout << "Best w : " << dist_sum/N << endl;
 
 }

@@ -22,7 +22,7 @@ using namespace std;
 
 
 int k = 4,L = 5;
-double w = 1000.0;
+double w = 2000.0;
 
 //const int M = 4294967291; 3.43597e+10
 
@@ -37,12 +37,12 @@ int main(){
 
 
 	string filename = "train-images-idx3-ubyte";
-	string filename2 = "query_small_id";
+	string filename2 = "t10k-images-idx3-ubyte";
 
 
 	int N = NumberOfPoints(filename);   // number of input points
 	int N_q = NumberOfPoints(filename2); // number of query points
-	int TableSize = N/4;
+	int TableSize = N/8;
 	cout << "Number of points is : " << N <<endl;
 	cout << "Number of queries is : " << N_q <<endl;
 	cout << "TableSize = " <<TableSize <<endl;
@@ -62,6 +62,8 @@ int main(){
 
 	int dimension = input.get_dimension();
 	cout << endl << "Dimension = "<< dimension <<endl;
+
+	//input.PrintPoint(30000);
 	
 	// find Exact NN before approximate
 	//Exact_NN(input,queries,N,N_q);

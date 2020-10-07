@@ -66,6 +66,11 @@ void Point_Array::FillPoints(string filename){
 }
 */
 
+void Point_Array::PrintPoint(int position){
+
+	points[position].PrintPoint();
+}
+
 int Point_Array::FillPoints(string &input_fp){
 
 	ifstream myfile;
@@ -97,33 +102,36 @@ int Point_Array::FillPoints(string &input_fp){
 	myfile.read((char*)&num_cols, sizeof(num_cols));
 	num_cols = reverseInteger(num_cols);
 	
-	cout << "Magic Number is:" << magic_number << endl;
+	//cout << "Magic Number is:" << magic_number << endl;
 	cout << "Number of images is:" << number_of_images << endl;
-	cout << "Number of rows is:" << num_rows << endl;
-	cout << "Number of columns is:" << num_cols << endl;
+	//cout << "Number of rows is:" << num_rows << endl;
+	//cout << "Number of columns is:" << num_cols << endl;
 
-	/* Allocating the array with the images */
-	Point* array_with_images;
-	array_with_images = new Point [number_of_images];
 
-	int n = 0;
+	int counter = 0;
 
 	/* Reading the images, pixel-by-pixel and storing them to the array */
 	for(int i=0; i < number_of_images; i++){	// change back to i < number_of_images
+
 	    for(int row = 0; row < num_rows; row++){
 	        for(int col = 0; col < num_cols; col++){
 
 	            unsigned char temp = 0;
 	            myfile.read((char*)&temp, sizeof(temp));
-				points[n].AddtoPoint((int) temp);
+				int val = (int) temp;
+
+				points[i].AddtoPoint(counter,val);
 				
+				++counter;
+
 				//array_with_images[i].PrintPoint();
 				//cout << (int) temp << ", "; 
 	        }
 	    }
-		++n;
+
+		counter = 0;
 		//array_with_images[i].PrintPoint();
-		cout << endl;
+		
 	}
 
 	myfile.close();

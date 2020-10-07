@@ -93,20 +93,34 @@ int modular(int base,unsigned int exp , unsigned int mod){
 
 
 
-int NumberOfPoints(string filename){
+int NumberOfPoints(string& input_fp){
 
-	int number_of_lines = 0;
+	ifstream myfile;
+	//string line;
+	
+	myfile.open(input_fp, ios::out | ios::binary);
 
-
-	string line;
-	ifstream myfile(filename);
-
-	while(getline(myfile,line)){
-
-		++number_of_lines;
+	if (!myfile.is_open()) {						/* probably exception handling here */
+	    cout << "Cannot open file!" << endl;
+		return 1;									/* what return value is proper? NULL? */
 	}
 
-	return number_of_lines;
+
+	/* Initialize all with zero */
+	int magic_number = 0;								/* Read and ignore it! */
+	int number_of_images = 0;
+	int num_rows = 0;
+	int num_cols = 0;
+	
+	myfile.read((char*)&magic_number, sizeof(magic_number)); 
+	magic_number = reverseInteger(magic_number);
+	
+	myfile.read((char*)&number_of_images, sizeof(number_of_images));
+	number_of_images = reverseInteger(number_of_images);
+
+	return number_of_images;
+
+	myfile.close();
 
 }
 
