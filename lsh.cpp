@@ -36,11 +36,9 @@ std::default_random_engine rand_generator(time(NULL));
 int main(){
 
 
-	string filename = "input_small_id";
+	string filename = "train-images-idx3-ubyte";
 	string filename2 = "query_small_id";
 
-	//string filename = "testpoints";
-	//string filename2 = "simple_query";
 
 	int N = NumberOfPoints(filename);   // number of input points
 	int N_q = NumberOfPoints(filename2); // number of query points
@@ -54,11 +52,12 @@ int main(){
 	Point_Array queries(N_q);
 
 
-	cout << "Filling input points"<<endl;
-	input.FillPoints(filename);
 	
-	cout <<"Filling query points"<<endl;
-	queries.FillPoints(filename2);
+	if(input.FillPoints(filename) == 0) cout << "Filling input points successful"<<endl;
+	else exit(-1);
+	
+	if(input.FillPoints(filename2) == 0) cout << "Filling query points successful"<<endl;
+	else exit(-1);
 
 
 	int dimension = input.get_dimension();
