@@ -56,17 +56,15 @@ int main(){
 	if(input.FillPoints(filename) == 0) cout << "Filling input points successful"<<endl;
 	else exit(-1);
 	
-	if(input.FillPoints(filename2) == 0) cout << "Filling query points successful"<<endl;
+	if(queries.FillPoints(filename2) == 0) cout << "Filling query points successful"<<endl;
 	else exit(-1);
 
 
 	int dimension = input.get_dimension();
 	cout << endl << "Dimension = "<< dimension <<endl;
-
-	//input.PrintPoint(30000);
 	
 	// find Exact NN before approximate
-	//Exact_NN(input,queries,N,N_q);
+	Exact_NN(input,queries,N,N_q);
 
 	cout << endl << "--Stage 1: Preprocessing stage...-- "<<endl;
 

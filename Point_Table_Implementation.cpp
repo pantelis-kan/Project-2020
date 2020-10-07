@@ -1,4 +1,5 @@
 #include "Point_Table.hpp"
+#include "Hypercube.hpp"
 
 #include "utilities.hpp"
 #include <string>
@@ -33,38 +34,6 @@ int Point_Array::get_dimension(){
 
 }
 
-/*
-long long int Point_Array::LSH_Manhattan( int M, const long long int m, double w,int position){
-
-	return points[position].LSH_Manhattan(M,m,w);
-
-}*/
-
-
-/* OLD
-
-void Point_Array::FillPoints(string filename){
-
-	string line2;
-	ifstream myfile2(filename);
-
-	int n = 0;
-
-	while(getline(myfile2,line2)){
-
-
-		int value;
-		stringstream parse(line2);
-
-		while(parse >> value)
-			points[n].AddtoPoint(value);
-
-		// remove the id since the index of the array implies the id
-		points[n].DeletefromPoint(points[n].Start());
-		++n;
-	}
-}
-*/
 
 void Point_Array::PrintPoint(int position){
 
@@ -177,6 +146,30 @@ int Point_Array::Compute_g(int position,int k,int M, const long long int m, doub
 
 }
 
+/*
+
+string Point_Array::Compute_f(int position,int k,int M, const long long int m, 
+					double w,int tablesize, double** s_params,Hypercube* hcube){
+
+	int g_x;
+	string concat = "";
+	long long h;
+	int h_int;
+	int conc = 0;
+
+	for(int i = 0; i < k; i++){
+		h = points[position].LSH_Manhattan(M,m,w,s_params,i);
+
+		char bin = hcube->Insert_to_F(h); // returns 0 or 1 
+
+		concat += to_string(bin);
+		
+	}
+
+	return concat;
+
+}
+*/
 
 Point& Point_Array::Retrieve(int position){
 

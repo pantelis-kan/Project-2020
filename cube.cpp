@@ -19,7 +19,10 @@ using namespace std;
 
 int k = 3,M=10,probes=2,N=1;
 double R = 1.0;
+double w = 2000.0;
 
+ int M_lsh = pow(2,32/k);
+const long long int m_lsh = 4294967291;
 
 std::default_random_engine rand_generator(time(NULL));
 
@@ -59,7 +62,7 @@ int main(){
 		// every h has its own parameters;
 	double**  s_params = new double*[k];
 	
-	for (int i = 0; i < L*k; i++){
+	for (int i = 0; i < k; i++){
 			
 		s_params[i] = new double[dimension];
 	} 
