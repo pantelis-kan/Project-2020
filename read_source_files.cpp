@@ -73,7 +73,6 @@ int read_input_file(string &input_fp){			/*check that in main string is made wit
 	            unsigned char temp = 0;
 	            myfile.read((char*)&temp, sizeof(temp));
 				array_with_images[i].AddtoPoint((int) temp);
-				//array_with_images[i].PrintPoint();
 				//cout << (int) temp << ", "; 
 	        }
 	    }
