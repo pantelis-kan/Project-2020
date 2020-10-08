@@ -1,9 +1,10 @@
-
+/* Methods required globally in order to perform different computations*/
 
 #include "utilities.hpp"
 
 using namespace std;
 
+/* Reversing an integer */
 int reverseInteger (int i) 
 {
     unsigned char c1, c2, c3, c4;
@@ -16,6 +17,7 @@ int reverseInteger (int i)
     return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 
+/* ???? */
 int string_mod(string num, int a) 
 { 
     // Initialize result 
@@ -30,7 +32,7 @@ int string_mod(string num, int a)
 
 
 
-// Returns (a * b) % mod 
+/* Returns (a * b) % mod */ 
 long long moduloMultiplication(long long a, 
 							long long b, 
 							long long mod) 
@@ -69,6 +71,7 @@ long long int powxy(long long int x, long long int y,int M){
 
 }
 
+
 int modular(int base,unsigned int exp , unsigned int mod){
 
 	int x = 1;
@@ -91,12 +94,9 @@ int modular(int base,unsigned int exp , unsigned int mod){
 }
 
 
-
-
+/* Counting the total number of images available in the input file */
 int NumberOfPoints(string& input_fp){
-
 	ifstream myfile;
-	//string line;
 	
 	myfile.open(input_fp, ios::out | ios::binary);
 

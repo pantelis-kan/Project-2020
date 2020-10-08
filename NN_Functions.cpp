@@ -1,10 +1,16 @@
 
 #include "NN_Functions.hpp"
 
-
 using namespace std;
 
-void Preprocessing(Hash_Table** H_Tables,Point_Array& input, int N, int TableSize, double** s_params,int L,int k,int M,long long int m,double w ){
+/* 	Assigns all images to buckets
+	int N : is the number of total images in the input 
+	int TableSize :
+	double** s_params: it's the s(i) necessary for the aplification of LSH
+*/
+void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int N, int TableSize, double** s_params, int L, 
+					int k, int M, long long int m, double w ){
+
 
 	int bucket_position;
 
@@ -14,9 +20,9 @@ void Preprocessing(Hash_Table** H_Tables,Point_Array& input, int N, int TableSiz
 		// Compute g1(x) ... gL(x)
 		for (int l = 0; l < L; l++){
 			
-			bucket_position = input.Compute_g(j,k,M,m,w,TableSize,s_params,l);
+			bucket_position = input.Compute_g(j, k, M, m, w, TableSize, s_params, l);
 
-			H_Tables[l]->InsertToBucket(bucket_position,j+1); // Insert to bucket point with id j+1	
+			H_Tables[l]->InsertToBucket(bucket_position, j+1); // Insert to bucket point with id j+1	
 
 			//cout << " point id " << j+1 << " has bucket " << bucket_position <<endl;
 		}
