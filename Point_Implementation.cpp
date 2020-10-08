@@ -6,36 +6,29 @@ using namespace std;
 
 //std::default_random_engine generator(time(NULL));
 
-
 Point::Point(){
 	dimension = 784;
 }
 
 Point::~Point(){
 
-
 }
 
 
 int Point::get_dimension(){
-
 	return dimension;
 }
 
 
-
 void Point::PrintPoint(){
-
 		for(int j = 0; j < dimension;  j++)
 			cout << point[j] << ' ';
 
-	
 		cout << endl << endl;
-
 }
 
-
-void Point::AddtoPoint(int pos,int val){ // add val to point vector
+// add val to point vector
+void Point::AddtoPoint(int pos, int val){ 
 
 	//cout << "Pushing " << val <<endl;
 	point[pos] = val;
@@ -45,9 +38,8 @@ void Point::AddtoPoint(int pos,int val){ // add val to point vector
 
 
  // computes h(x) 
-long long int Point::LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k){ 	
+long long int Point::LSH_Manhattan(int M, const long long int m, double w, double** s_params, int current_k){ 	
 
-	
 	//std::uniform_real_distribution<double> distribution(0.0,w);
 
 	int Dimension = get_dimension();
@@ -63,10 +55,10 @@ long long int Point::LSH_Manhattan(int M, const long long int m, double w, doubl
 
 	//cout << current_k << endl;
 
-	for(int i = 0; i < Dimension; i++){
 
+	for(int i = 0; i < Dimension; i++){
 		//cout <<  s_params[current_k][i] << endl;
-		coeff[i] = ceil( (point[i] - s_params[current_k][i]) / w );
+		coeff[i] = floor( (point[i] - s_params[current_k][i]) / w );
 		//cout << coeff[i] << "  ";
 		
 	}
@@ -79,14 +71,14 @@ long long int Point::LSH_Manhattan(int M, const long long int m, double w, doubl
 	
 	int k = 0;
 	for(int j = Dimension-1; j >= 0; j--){
-		result = moduloMultiplication(powxy(m,k,M),coeff[j]%M,M); // (m^k mod M * aj mod M ) mod M
+		result = moduloMultiplication(powxy(m,k,M), coeff[j]%M, M); // (m^k mod M * aj mod M ) mod M
 		//cout << "Adding " << result <<endl;
-		hash += result%M; 
+		hash += result % M; 
 		++k;
 	}
 
 	delete[] coeff;
-	return hash%M;
+	return hash % M;
 
 }
 
