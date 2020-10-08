@@ -113,6 +113,14 @@ int Point_Array::get_ArraySize(){
 	return ArraySize;
 }
 
+bool Point_Array::check_centroid(int pos){
+	return points[pos].check_centroid();
+}
+
+void  Point_Array::set_centroid(int pos,bool val){
+	points[pos].set_centroid(val);
+}
+
 int Point_Array::Compute_g(int position,int k,int M, const long long int m, double w,int tablesize, double** s_params,int l){
 
 	// Call h(x) k times and concatenate to a string. Then compute mod HashTableSize
@@ -172,5 +180,9 @@ Point& Point_Array::Retrieve(int position){
 	return points[position];
 }
 
+Point* Point_Array::Retrieve_ptr(int position){
 
+	return &(points[position]);
+
+}
 

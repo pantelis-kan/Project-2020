@@ -106,6 +106,7 @@ void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q){
 	int num_of_points = N/4;
 
 	long double dist_sum = 0.0;
+	
 
 	for(int j = 0; j < N_q; j++){
 		min_distance = std::numeric_limits<double>::max();

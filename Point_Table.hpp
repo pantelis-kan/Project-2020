@@ -26,11 +26,15 @@ class Point_Array{
 		int FillPoints(string &input_fp);
 
 		void PrintPoint(int position);
+		bool check_centroid(int pos);
+		void set_centroid(int pos,bool val);
+
 
 		// compute g(x) , by concatenation of h1(x)...hk(x)
 		int Compute_g(int position,int k,int M, const long long int m, double w,int tablesize, double** s_params,int l); 
 
 		Point& Retrieve(int position);
+		Point* Retrieve_ptr(int position);
 
 	private:
 		Point* points;

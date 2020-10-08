@@ -19,6 +19,9 @@ class Point{
 //isws prepei na exoume mia set_dimension pou na thetei to dimension me vasi auto pou diavazoume? To eida oti einai ston constructor alla nomizw einai pio swsto me setter
 		void PrintPoint();
 		void AddtoPoint(int pos,int val);
+		bool check_centroid();
+		void set_centroid(bool val);
+		
 
 		long long int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
 
@@ -28,6 +31,7 @@ class Point{
 
 		int point[784]; // a collection of integers for each point
 		int dimension;
+		bool is_centroid;
 };
 
 #endif
