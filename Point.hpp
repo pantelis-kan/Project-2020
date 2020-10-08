@@ -16,9 +16,9 @@ class Point{
 		Point();
 		~Point();
 		int get_dimension();
+//isws prepei na exoume mia set_dimension pou na thetei to dimension me vasi auto pou diavazoume? To eida oti einai ston constructor alla nomizw einai pio swsto me setter
 		void PrintPoint();
 		void AddtoPoint(int pos,int val);
-		
 
 		long long int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
 

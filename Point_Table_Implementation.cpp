@@ -34,7 +34,7 @@ int Point_Array::get_dimension(){
 
 }
 
-
+//testtt
 void Point_Array::PrintPoint(int position){
 
 	points[position].PrintPoint();
@@ -93,14 +93,10 @@ int Point_Array::FillPoints(string &input_fp){
 				
 				++counter;
 
-				//array_with_images[i].PrintPoint();
-				//cout << (int) temp << ", "; 
 	        }
 	    }
 
-		counter = 0;
-		//array_with_images[i].PrintPoint();
-		
+		counter = 0;		
 	}
 
 	myfile.close();
@@ -128,7 +124,7 @@ int Point_Array::Compute_g(int position,int k,int M, const long long int m, doub
 	int conc = 0;
 
 	for(int i = 0; i < k; i++){
-		h = points[position].LSH_Manhattan(M,m,w,s_params,i+l*k);
+		h = points[position].LSH_Manhattan(M, m, w, s_params, i+l*k);
 
 		h_int = h;
 
@@ -171,10 +167,9 @@ string Point_Array::Compute_f(int position,int k,int M, const long long int m,
 }
 */
 
+/* Returning the image in position */
 Point& Point_Array::Retrieve(int position){
-
 	return points[position];
-
 }
 
 
