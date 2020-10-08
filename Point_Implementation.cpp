@@ -9,6 +9,7 @@ using namespace std;
 
 Point::Point(){
 	dimension = 784;
+	is_centroid = false;
 }
 
 Point::~Point(){
@@ -90,7 +91,14 @@ long long int Point::LSH_Manhattan(int M, const long long int m, double w, doubl
 
 }
 
+bool Point::check_centroid(){
+	return is_centroid;
+}
 
+void Point::set_centroid(bool val){
+
+	is_centroid = val;
+}
 
 
 double Distance(Point& v1, Point& v2, int metric){
