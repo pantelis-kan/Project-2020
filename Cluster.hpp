@@ -16,11 +16,12 @@ class Cluster{
         void Assign_Point(int id); // assign the point id to the cluster
         void Assign_Centroid(Point* c);
         void Compute_New_Centroid();
+        Point& get_centroid();
 
 
     private:
 
-        Point* centroid; // centroid is a Point
+        Point& centroid; // centroid is a Point
         list<int> points; // the point ids that belong to the cluster
 
 };
