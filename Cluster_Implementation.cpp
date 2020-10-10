@@ -16,15 +16,15 @@ using namespace std;
 std::default_random_engine rand_generator(time(NULL));
 
 Cluster::Cluster(){
-    centroid = NULL;
+    centroid = new Point;
 }
 
 Cluster::~Cluster(){
-
+    delete centroid;
 }
 
 void Cluster::Assign_Centroid(Point* c){
-    centroid = c;
+   Copy_Points(c,centroid);
 }
 
 Point* Cluster::get_centroid(){
@@ -161,4 +161,45 @@ void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
         //delete[] D;
     }
 
+}
+
+void Cluster::Assign_Point(int id){
+    points.push_back(id);
+}
+
+void Cluster::Compute_New_Centroid(Point_Array& input){
+
+    std::list<int>::iterator it;
+
+	int dimension = centroid->get_dimension();
+	int points_in_cluster = points.size();
+
+    if(points_in_cluster == 0) return;
+	int sum;
+
+	// for each dimension
+	for(int i = 0; i < dimension; i++){
+		sum = 0;
+
+		//for each id that belongs in the cluster
+		for (it = points.begin(); it != points.end(); ++it){
+			int id = *it;
+
+			Point* p = input.Retrieve_ptr(id);
+			sum += p->get_coordinate(i);
+		}
+
+		sum = sum/points_in_cluster;
+		centroid->set_coordinate(i,sum);
+	}
+    /*
+    cout << "Printing new centroid " <<endl;
+    centroid->PrintPoint();
+    */
+}
+
+
+void Cluster::Remove_Point(int id){
+
+	points.remove(id);
 }

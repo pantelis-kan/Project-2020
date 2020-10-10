@@ -10,6 +10,7 @@
 #include <vector>
 #include <chrono>
 #include <random>
+#include <list>
 
 #include "Point_Table.hpp"
 #include "Point.hpp"
@@ -22,6 +23,10 @@ using namespace std;
 int k = 4; // k = number of clusters
 
 void Initialize_Centroids(Point_Array&,Cluster*,int );
+bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k);
+void Loyds_Clusters(Point_Array& input,Cluster* clusters,int k);
+void Update(Point_Array& input,Cluster* clusters,int k);
+
 
 int main(){
 
@@ -88,17 +93,17 @@ void Loyds_Clusters(Point_Array& input,Cluster* clusters,int k){
 			break;
 		}
 
-		Update(clusters,k);
+		Update(input,clusters,k);
 	}
 
 	if(not_converged == true) cout << "Clustering failed"<<endl;
 }
 
-void Update(Cluster* clusters,int k){
+void Update(Point_Array& input,Cluster* clusters,int k){
 
 	for(int i = 0; i < k; i++){
-
-		clusters[i].Compute_New_Centroid();
+		
+		clusters[i].Compute_New_Centroid(input);
 
 	}
 
@@ -109,22 +114,28 @@ void Update(Cluster* clusters,int k){
 bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k){
 
 	int input_points = input.get_ArraySize();
-	int nearest_cluster;
-	double min_distance = std::numeric_limits<double>::max();
+	int nearest_cluster = 0;
+	double min_distance;
     double distance;
 
 	bool changed = true;
 
-	int points_changed = 0;
+	int points_not_changed = 0;
 
+	// for each point
 	for(int i = 0; i < input_points; i++){
 
+		min_distance = std::numeric_limits<double>::max();
+
 		Point& point = input.Retrieve(i);
+		if(point.check_centroid() == true) continue;
+
+		// for each cluster
 		for(int j = 0; j < k; j++){
 
 			Point& centr = *(clusters[j].get_centroid());
 			distance = Distance(point,centr,1);
-
+			
 			if (distance < min_distance){
 				min_distance = distance;
 				nearest_cluster = j;
@@ -133,7 +144,7 @@ bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k){
 			
 		}
 
-		int point_nearest_cluster = point.Nearest_Cluster_id()
+		int point_nearest_cluster = point.Nearest_Cluster_id();
 		// check if point needs to change cluster
 		if( point_nearest_cluster != nearest_cluster){
 
@@ -141,21 +152,18 @@ bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k){
 			// remove the point from the old cluster
 			if(point_nearest_cluster != -1) clusters[point_nearest_cluster].Remove_Point(i);
 
-			clusters[nearest_cluster].Assign_Point(i));
+			clusters[nearest_cluster].Assign_Point(i);
 			point.Assign_Cluster(nearest_cluster);
 		}
 		else{
-			++points_changed;
+			++points_not_changed;
 		}
 	}
 
 	// There is no change in assignment
-	if(points_changed == input_points) changed = false;
+	if(points_not_changed == input_points) changed = false;
 
+	cout << "Assignment : Points assigned = " << input_points - points_not_changed <<endl;
 	return changed;
 }
 
-void Cluster::Remove_Point(int id){
-
-	points.remove(id);
-}

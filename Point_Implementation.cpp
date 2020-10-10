@@ -9,6 +9,16 @@ using namespace std;
 Point::Point(){
 	dimension = 784;
 	is_centroid = false;
+	nearest_cluster = -1;
+}
+
+int Point::Nearest_Cluster_id(){
+
+	return nearest_cluster;
+}
+
+void Point::Assign_Cluster(int c){
+	nearest_cluster = c;
 }
 
 Point::~Point(){
@@ -121,5 +131,20 @@ double Distance(Point& v1, Point& v2, int metric){
 
 }
 
+void Copy_Points(Point* from, Point* to){
 
+	int dimension = from->get_dimension();
 
+	for(int i = 0; i < dimension; i++){
+
+		to->point[i] = from->point[i];
+	}
+}
+
+int Point::get_coordinate(int pos){
+	return point[pos];
+}
+
+void Point::set_coordinate(int pos,int val){
+	point[pos] = val;
+}
