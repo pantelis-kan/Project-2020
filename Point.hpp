@@ -7,6 +7,9 @@
 #include <iterator>
 #include <random>
 
+
+
+
 using namespace std;
 
 class Point{
@@ -21,17 +24,23 @@ class Point{
 		void AddtoPoint(int pos,int val);
 		bool check_centroid();
 		void set_centroid(bool val);
+		void Assign_Cluster(int c);
+		int Nearest_Cluster_id();
+		int get_coordinate(int pos);
+		void set_coordinate(int pos,int val);
 		
 
 		long long int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
 
 		friend double Distance(Point& p1, Point& p2, int metric); // returns the distance between two points
+		friend void Copy_Points(Point* from, Point* to);
 
 	private:
 
 		int point[784]; // a collection of integers for each point
 		int dimension;
 		bool is_centroid;
+		int nearest_cluster;
 };
 
 #endif

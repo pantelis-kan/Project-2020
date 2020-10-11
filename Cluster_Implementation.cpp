@@ -11,38 +11,98 @@ using namespace std;
 #include "Point_Table.hpp"
 #include "Point.hpp"
 #include "utilities.hpp"
-#include "NN_Functions.hpp"
 
 // Initilize uniform random generator
 std::default_random_engine rand_generator(time(NULL));
 
+Cluster::Cluster(){
+    centroid = new Point;
+}
+
+Cluster::~Cluster(){
+    delete centroid;
+}
 
 void Cluster::Assign_Centroid(Point* c){
-    centroid = c;
+   Copy_Points(c,centroid);
 }
 
-Point& Cluster::get_centroid(){
+Point* Cluster::get_centroid(){
     return centroid;
 }
+
+
+/* Min distance from a point to all the available centroids
+    size = number of already assigned centroids
+    Returns the nearest cluster index (0-k) 
+*/
+double Min_Centroid_Distance(Point& point, Cluster* clusters,int size){
+
+    int nearest_neighbor_id;
+	double min_distance = std::numeric_limits<double>::max();
+    double distance;
+
+    int nearest_centroid_id = 0;
+
+    for(int i = 0; i < size; i++){
+        Point& centr = *(clusters[i].get_centroid());
+
+        distance = Distance(point,centr,1);
+
+        if (distance < min_distance) min_distance = distance;
+    }
+
+    return min_distance;
+}
+
+
+/*
+Returns the right index of key
+example: 34.0 < key < 40.0
+The function will return the index of 40.0 
+*/
+int binary_search_index(double *A,double key,int left, int right)
+{
+
+  while (left <= right) {
+        int middle = left + (right - left) / 2;
+        if (A[middle] < key)
+            left = middle+1;
+        else if(A[middle] > key)
+            right = middle-1;
+        else
+            return middle;
+    }
+    return (right + 1);
+}
+
+
 
 void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
 
     int input_points = input.get_ArraySize();
 
     // Pick the first centroid uniformly at random
-    std::uniform_real_distribution<int> first_centroid(0,input_points); 
-    int first_centr = first_centroid(rand_generator);
+    std::uniform_real_distribution<double> first_centroid(0.0,(double)input_points); 
+    double first = first_centroid(rand_generator);
+
+    int first_centr = (int)first;
 
     input.set_centroid(first_centr,true); // mark the first centroid
 
-    Point& point = input.Retrieve(first_centr);
+    Point* point = input.Retrieve_ptr(first_centr);
     clusters[0].Assign_Centroid(point); // assign first centroid
+
+    cout << "1st centroid chosen at index " << first_centr << endl;
+
+    double* prob;
+    double* D;
 
     for(int t = 1; t < k; t++ ){
 
 
-        double* prob = new double[input_points - t];
-        double* D = new double[input_points - t];
+        prob = new double[input_points - t];
+        D = new double[input_points - t];
 
         prob[0] = 0;
         
@@ -69,38 +129,77 @@ void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
             ++position;
         }
 
-        
+        // the maximum element is always the last element
+        double max_P = prob[input_points -t-1];
 
         // Set up a uniform random distribution from (0,P(r)]
-        std::uniform_real_distribution<double> distribution(1,max_P); 
+        std::uniform_real_distribution<double> distribution(1.0,max_P); 
         double x = distribution(rand_generator);
 
-        delete[] prob;
-    }
+        int index_of_x = binary_search_index(prob, x, 0, input_points - t);
 
+        bool is_centr = true;
+
+        /*
+            If the index of x is an already assigned centroid,
+            increment the index until you find a point that isn't assigned as centroid
+        */
+        while(is_centr == true){
+
+            Point* next_centroid = input.Retrieve_ptr(index_of_x);
+            
+            if(next_centroid->check_centroid() == true) index_of_x++;
+            else{
+                // centroid found. Assign to cluster
+                cout << t+1 << " centroid chosen at index "<< index_of_x << endl;
+                clusters[t].Assign_Centroid(next_centroid);
+                is_centr = false;
+            }
+        }
+
+        //delete[] prob;
+        //delete[] D;
+    }
 
 }
 
+void Cluster::Assign_Point(int id){
+    points.push_back(id);
+}
 
-/* Min distance from a point to all the available centroids
-    size = number of already assigned centroids
-    Returns the nearest cluster index (0-k) 
-*/
-double Min_Centroid_Distance(Point& point, Cluster* clusters,int size){
+void Cluster::Compute_New_Centroid(Point_Array& input){
 
-    int nearest_neighbor_id;
-	double min_distance = std::numeric_limits<double>::max();
-    double distance;
+    std::list<int>::iterator it;
 
-    int nearest_centroid_id = 0;
+	int dimension = centroid->get_dimension();
+	int points_in_cluster = points.size();
 
-    for(int i = 0; i < size; i++){
-        Point& centr = clusters[i].get_centroid();
+    if(points_in_cluster == 0) return;
+	int sum;
 
-        distance = Distance(point,centr,1);
+	// for each dimension
+	for(int i = 0; i < dimension; i++){
+		sum = 0;
 
-        if (distance < min_distance) min_distance = distance;
-    }
+		//for each id that belongs in the cluster
+		for (it = points.begin(); it != points.end(); ++it){
+			int id = *it;
 
-    return min_distance;
+			Point* p = input.Retrieve_ptr(id);
+			sum += p->get_coordinate(i);
+		}
+
+		sum = sum/points_in_cluster;
+		centroid->set_coordinate(i,sum);
+	}
+    /*
+    cout << "Printing new centroid " <<endl;
+    centroid->PrintPoint();
+    */
+}
+
+
+void Cluster::Remove_Point(int id){
+
+	points.remove(id);
 }
