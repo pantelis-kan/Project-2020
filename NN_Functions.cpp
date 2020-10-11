@@ -1,6 +1,7 @@
 
 #include "NN_Functions.hpp"
 
+
 using namespace std;
 
 /* 	Assigns all images to buckets
@@ -97,7 +98,7 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 
 
 
-void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q){
+void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q){
 
 	int nearest_neighbor_id;
 	double min_distance;
@@ -135,5 +136,52 @@ void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q){
 
 	//cout << "distance sum : " << dist_sum <<endl;
 	cout << "Best w : " << dist_sum/N << endl;
+
+}
+
+
+double compute_w(Point_Array& input, int N){
+	double distance_sum = 0.0;
+	double distance_a_b = 0.0;
+	int count_of_sums = 0;
+
+	Point* image_a;
+	Point* image_b;
+
+	cout << "Calculating started now!!" << endl;
+//    auto start = high_resolution_clock::now(); 
+
+/*
+	for (int i = 0; i < N; i++){
+		image_a = input.Retrieve_ptr(i);
+		cout << "we are at " << i << endl;
+		for (int j = i+1; j < N; j++){
+			image_b = input.Retrieve_ptr(j);
+			distance_a_b = Distance(*image_a, *image_b, 1);
+			distance_sum += distance_a_b;
+			count_of_sums++;
+		}
+	}
+*/
+
+	for (int i = 0; i < N; i += 2){
+		image_a = input.Retrieve_ptr(i);
+		image_b = input.Retrieve_ptr(i+1);
+		distance_a_b = Distance(*image_a, *image_b, 1);
+		distance_sum += distance_a_b;
+		count_of_sums++;
+		cout << "we are at " << i << endl;
+	}
+
+
+	cout << "average distance is:" << distance_sum/count_of_sums << endl;
+	cout << "count of sums:" << count_of_sums << endl;
+  //  auto stop = high_resolution_clock::now(); 
+
+//	auto duration = duration_cast(stop - start); 
+  
+//    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+
+	return distance_sum/count_of_sums;
 
 }

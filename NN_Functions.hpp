@@ -26,4 +26,6 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 
 void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q);
 
+double compute_w(Point_Array& input, int N);
+
 #endif
