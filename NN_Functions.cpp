@@ -1,6 +1,8 @@
 
 #include "NN_Functions.hpp"
 
+#include <chrono>
+
 using namespace std;
 
 /* 	Assigns all images to buckets
@@ -17,22 +19,34 @@ void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int N, int TableSi
 	// for each point x in the input
 	for(int j = 0; j < N; j++ ){
 
+		auto t1 = std::chrono::high_resolution_clock::now();
+
 		// Compute g1(x) ... gL(x)
 		for (int l = 0; l < L; l++){
-			
+		
 			bucket_position = input.Compute_g(j, k, M, m, w, TableSize, s_params, l);
+			
+
+			//cout << "Function g(x) computed in " << duration <<endl;
 
 			H_Tables[l]->InsertToBucket(bucket_position, j+1); // Insert to bucket point with id j+1	
 
 			//cout << " point id " << j+1 << " has bucket " << bucket_position <<endl;
 		}
 
+		auto t2 = std::chrono::high_resolution_clock::now();		
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+		//cout << "Point " << j+1 << " inserted in " << duration << " microseconds " << endl;
 		//cout << endl;
 
 	}
 
 
 }
+
+
+
 
 
 void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& queries,int N_q,int TableSize, double** s_params,int L,int k,int M,long long int m,double w){

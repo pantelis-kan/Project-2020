@@ -29,6 +29,7 @@ const long long int m = 4294967291;
 
 std::default_random_engine rand_generator(time(NULL));
 
+int FillPoints_static(string &input_fp,int** array);
 
 int main(){
 
@@ -60,8 +61,6 @@ int main(){
 	// find Exact NN before approximate
 //	Exact_NN(input,queries,N,N_q);
 
-	cout << endl << "--Stage 1: Preprocessing stage...-- "<<endl;
-
 	// every h (h1, h2, ..., hk) has its own parameters for the amplification
 	// definition of si parameter with i = 0,1,...,d-1
 	double**  s_params = new double*[L*k];
@@ -91,13 +90,22 @@ int main(){
 		H_Tables[i] = new Hash_Table(TableSize);
 	}
 
-	Preprocessing(H_Tables, input, N, TableSize, s_params, L, k, M, m, w);
 
-	cout << "Stage 1 completed! " << endl;
+
+	cout << endl << "--Stage 1: Preprocessing stage...-- "<<endl;
+
+	auto t1 = std::chrono::high_resolution_clock::now();		
+	
+	Preprocessing(H_Tables, input, N, TableSize, s_params, L, k, M, m, w);
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
+
+	cout << "Stage 1 completed in " << duration << " seconds" << endl;
 
 	cout << "--Stage 2: Checking each query --" <<endl;
 
-	Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
+	//Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
 
 	cout << "Stage 2 completed!" << endl;
 	

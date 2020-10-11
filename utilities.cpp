@@ -31,35 +31,15 @@ int string_mod(string num, int a)
 }
 
 
+ int mod( int k,  int n) {
+    return ((k %= n) < 0) ? k+n : k;
+}
 
-/* Returns (a * b) % mod */ 
-long long moduloMultiplication(long long a, 
-							long long b, 
-							long long mod) 
-{ 
-	long long res = 0; // Initialize result 
 
-	// Update a if it is more than 
-	// or equal to mod 
-	a %= mod; 
 
-	while (b) 
-	{ 
-		// If b is odd, add a with result 
-		if (b & 1) 
-			res = (res + a) % mod; 
-
-		// Here we assume that doing 2*a 
-		// doesn't cause overflow 
-		a = (2 * a) % mod; 
-
-		b >>= 1; // b = b / 2 
-	} 
-
-	return res; 
-} 
 
 // x^y mod M
+/*
 long long int powxy(long long int x, long long int y,int M){
 
 	//cout << "Called with arguments : " << x << "   " << y <<endl;
@@ -70,6 +50,59 @@ long long int powxy(long long int x, long long int y,int M){
 	return moduloMultiplication(t, t, M);
 
 }
+*/
+
+
+ int power(long long int x, int y,  int p)  
+{  
+    int res = 1;     // Initialize result  
+  
+    x = x % p; // Update x if it is more than or  
+                // equal to p 
+   
+    if (x == 0) return 0; // In case x is divisible by p; 
+  
+    while (y > 0)  
+    {  
+        // If y is odd, multiply x with result  
+        if (y & 1)  
+            res = (res*x) % p;  
+  
+        // y must be even now  
+        y = y>>1; // y = y/2  
+        x = (x*x) % p;  
+    }  
+
+	//cout << "Modular exponentiation returning " << res <<endl;
+    return res;  
+}  
+
+
+int bigMod(int a,int  b,int c) {
+    if (a == 0 || b == 0) {
+        return 0;
+    }
+    if (a == 1) {
+        return b;
+    }
+    if (b == 1) {
+        return a;
+    } 
+
+    // Returns: (a * b/2) mod c
+    long a2 = bigMod(a, b / 2, c);
+
+    // Even factor
+    if ((b & 1) == 0) {
+        // [((a * b/2) mod c) + ((a * b/2) mod c)] mod c
+        return (a2 + a2) % c;
+    } else {
+        // Odd exponent
+        // [(a mod c) + ((a * b/2) mod c) + ((a * b/2) mod c)] mod c
+        return ((a % c) + (a2 + a2)) % c;
+    }
+}
+
 
 
 int modular(int base,unsigned int exp , unsigned int mod){

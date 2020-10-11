@@ -26,4 +26,7 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 
 void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q);
 
+void Preprocessing_Static(Hash_Table** H_Tables, int** input_array, int N, int TableSize, double** s_params, int L, 
+					int k, int M, long long int m, double w );
+
 #endif

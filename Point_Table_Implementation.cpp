@@ -127,14 +127,12 @@ int Point_Array::Compute_g(int position,int k,int M, const long long int m, doub
 
 	int g_x;
 	string concat = "";
-	long long h;
+
 	int h_int;
 	int conc = 0;
 
 	for(int i = 0; i < k; i++){
-		h = points[position].LSH_Manhattan(M, m, w, s_params, i+l*k);
-
-		h_int = h;
+		h_int = points[position].LSH_Manhattan(M, m, w, s_params, i+l*k);
 
 		//concat += to_string(h);
 		conc = (conc << 16) | h_int; // bitwise concatenation

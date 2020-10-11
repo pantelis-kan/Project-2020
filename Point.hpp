@@ -30,7 +30,7 @@ class Point{
 		void set_coordinate(int pos,int val);
 		
 
-		long long int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
+		 int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
 
 		friend double Distance(Point& p1, Point& p2, int metric); // returns the distance between two points
 		friend void Copy_Points(Point* from, Point* to);

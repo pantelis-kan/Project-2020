@@ -2,6 +2,7 @@
 #include "Point.hpp"
 #include "utilities.hpp"
 
+
 using namespace std;
 
 //std::default_random_engine generator(time(NULL));
@@ -49,47 +50,39 @@ void Point::AddtoPoint(int pos, int val){
 
 
  // computes h(x) 
-long long int Point::LSH_Manhattan(int M, const long long int m, double w, double** s_params, int current_k){ 	
-
-	//std::uniform_real_distribution<double> distribution(0.0,w);
+ int Point::LSH_Manhattan(int M, const long long int m, double w, double** s_params, int current_k){ 	
 
 	int Dimension = get_dimension();
 
 	int* coeff = new int[Dimension];
-	long long hash = 0;
-	long long result;
-	
-	//cout << "Random number from 0 to "<<w << " = " << FRandomGen(0.0,w,generator) << endl;
-
-
-	//cout << "Chosen coefficients : "; 
-
-	//cout << current_k << endl;
+	int hash = 0;
+	int result;
 
 
 	for(int i = 0; i < Dimension; i++){
-		//cout <<  s_params[current_k][i] << endl;
 		coeff[i] = floor( (point[i] - s_params[current_k][i]) / w );
-		//cout << coeff[i] << "  ";
 		
 	}
 
-
-	//int m = *max_element(coeff,coeff+dimension) + 1;
-
-	//cout << "m = " << m<<endl;
-	//cout << "M = " << M << endl;
-	
 	int k = 0;
 	for(int j = Dimension-1; j >= 0; j--){
-		result = moduloMultiplication(powxy(m,k,M), coeff[j]%M, M); // (m^k mod M * aj mod M ) mod M
+		int power_m = power(m,k,M);
+		//cout << "powxy returned " << power_m <<endl;
+
+		int coeff_param = mod(coeff[j],M);
+		//cout << "coeff[j] " << coeff[j]<< " mod M = " << coeff_param <<endl;
+
+
+		//result = moduloMultiplication(power_m, coeff[j]%M, M); // (m^k mod M * aj mod M ) mod M
+		result = mod(bigMod(power_m , coeff_param,M) , M);
+		
 		//cout << "Adding " << result <<endl;
-		hash += result % M; 
+		hash += (result % M); 
 		++k;
 	}
 
 	delete[] coeff;
-	return hash % M;
+	return (hash % M);
 
 }
 

@@ -23,7 +23,7 @@ using namespace std;
 int k = 4; // k = number of clusters
 
 void Initialize_Centroids(Point_Array&,Cluster*,int );
-bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k);
+bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k,int* assigned);
 void Loyds_Clusters(Point_Array& input,Cluster* clusters,int k);
 void Update(Point_Array& input,Cluster* clusters,int k);
 
@@ -82,12 +82,25 @@ void Loyds_Clusters(Point_Array& input,Cluster* clusters,int k){
 	bool not_converged = true;
 	int loops = 0;
 
+	int old_assigned;
+	// in the first loop, all the points will be assigned
+	int new_assigned = input.get_ArraySize();
+
 	while(not_converged == true){
 
 		++loops;
 		if(loops > 30) break;
 
-		bool changed = Loyds_Assign(input,clusters,k);
+		old_assigned = new_assigned;
+		bool changed = Loyds_Assign(input,clusters,k,&new_assigned);
+
+		if(loops > 1){
+			if(abs(new_assigned - old_assigned) <= 10){
+				not_converged = false;
+				break;
+			}
+		}
+
 		if(changed == false){
 			not_converged = false;
 			break;
@@ -97,6 +110,7 @@ void Loyds_Clusters(Point_Array& input,Cluster* clusters,int k){
 	}
 
 	if(not_converged == true) cout << "Clustering failed"<<endl;
+	else cout << "Clustering successful" << endl;
 }
 
 void Update(Point_Array& input,Cluster* clusters,int k){
@@ -111,7 +125,7 @@ void Update(Point_Array& input,Cluster* clusters,int k){
 
 
 
-bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k){
+bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k,int* assigned){
 
 	int input_points = input.get_ArraySize();
 	int nearest_cluster = 0;
@@ -163,7 +177,8 @@ bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k){
 	// There is no change in assignment
 	if(points_not_changed == input_points) changed = false;
 
-	cout << "Assignment : Points assigned = " << input_points - points_not_changed <<endl;
+	*assigned = input_points - points_not_changed;
+	cout << "New points assigned = " << input_points - points_not_changed <<endl;
 	return changed;
 }
 
