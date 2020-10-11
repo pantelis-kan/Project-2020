@@ -8,8 +8,8 @@
 #include <random>
 
 #include "Point.hpp"
-#include "Hypercube.hpp"
 
+class Hypercube;
 using namespace std;
 
 class Point_Array{

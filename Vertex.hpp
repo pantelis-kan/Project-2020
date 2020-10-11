@@ -4,20 +4,23 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 class Vertex{
 
 	public:
-		Vertex();	//initialize all vertex la
+		Vertex();	//initialize all vertex labels?
 		~Vertex();
 
 		string Get_label();
+		void print_records();
 		void Set_label(string label);
 
 		void Insert(int id);
-		Search_record(int id);
+		void Search_record(int id); //searches for an id. only prints for now
+		
 
 	private:
 		string label; // the label of the bucket , example: '00101'
