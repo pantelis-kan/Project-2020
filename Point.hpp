@@ -7,9 +7,6 @@
 #include <iterator>
 #include <random>
 
-
-
-
 using namespace std;
 
 class Point{

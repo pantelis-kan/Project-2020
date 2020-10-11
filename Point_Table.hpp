@@ -4,11 +4,11 @@
 #ifndef POINT_TABLE_HPP
 #define POINT_TABLE_HPP
 
-
 #include <iostream>
 #include <random>
 
 #include "Point.hpp"
+#include "Hypercube.hpp"
 
 using namespace std;
 
@@ -32,6 +32,9 @@ class Point_Array{
 
 		// compute g(x) , by concatenation of h1(x)...hk(x)
 		int Compute_g(int position,int k,int M, const long long int m, double w,int tablesize, double** s_params,int l); 
+
+		string Compute_f(int position, int k, int M, const long long int m, 
+					double w, double** s_params, Hypercube* hcube);
 
 		Point& Retrieve(int position);
 		Point* Retrieve_ptr(int position);

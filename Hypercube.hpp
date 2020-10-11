@@ -5,24 +5,37 @@
 #include <map>
 #include <string>
 
+class Point_Array;
+//#include "Point_Table.hpp"
+#include "Point.hpp"
 #include "Vertex.hpp"
 
 using namespace std;
 
-// a collection of vertices
-
+/* Collection of k vertices
+*/
 class Hypercube{
-
 	public:
-		Hypercube();
+		Hypercube(int k);
 		~Hypercube();
-		void Insert(string tag,int id);
-		void Insert_to_F(int h); // create f(h) and store it in map 
+
+		inline int get_vertex_t_size(){
+			return vertex_t_size;
+		}
+
+
+		void Map_images(Point_Array& input, int N, int k, double** s_params, 
+					int M, long long int m, double w); //internally manages the hashing, mapping and insertion of points
+		
+		void Insert(string label, int id); //inserting image with id in label=tag
+		int Search_by_label(string label);
+		
+		char Insert_to_F(int h); // create f(h) and store it in map
 
 	private:
 		Vertex* vertex_table;
-		map<int,char> F_function;
-
+		map<int, char> F_function; //mapping h values with the 0 or 1
+		int vertex_t_size = 0;
 };
 
 #endif

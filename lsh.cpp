@@ -45,7 +45,6 @@ int main(){
 
 	Point_Array input(N);
 	Point_Array queries(N_q);
-
 	
 	if(input.FillPoints(filename) == 0) cout << "Filling input points successful"<<endl;
 	else exit(-1);
@@ -71,6 +70,8 @@ int main(){
 	} 
 
 //nomizw edw prepei na kanoume ton ypologismo tou w opws eipe o xamodragon me th mesi apostasi epi 4 me 10 fores
+	//w = compute_w(input, N);
+
 
 	//Limiting rand function to take values from 0.0 to w
 	std::uniform_real_distribution<double> distribution(0.0,w);
@@ -91,13 +92,13 @@ int main(){
 		H_Tables[i] = new Hash_Table(TableSize);
 	}
 
-	Preprocessing(H_Tables, input, N, TableSize, s_params, L, k, M, m, w);
+//	Preprocessing(H_Tables, input, N, TableSize, s_params, L, k, M, m, w);
 
 	cout << "Stage 1 completed! " << endl;
 
 	cout << "--Stage 2: Checking each query --" <<endl;
 
-	Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
+//	Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
 
 	cout << "Stage 2 completed!" << endl;
 	

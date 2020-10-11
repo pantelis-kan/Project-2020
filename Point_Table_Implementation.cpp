@@ -1,5 +1,6 @@
+
+
 #include "Point_Table.hpp"
-#include "Hypercube.hpp"
 
 #include "utilities.hpp"
 #include <string>
@@ -150,30 +151,32 @@ int Point_Array::Compute_g(int position,int k,int M, const long long int m, doub
 
 }
 
-/*
 
-string Point_Array::Compute_f(int position,int k,int M, const long long int m, 
-					double w,int tablesize, double** s_params,Hypercube* hcube){
+string Point_Array::Compute_f(int position, int k, int M, const long long int m, 
+					double w, double** s_params, Hypercube* hcube){
 
-	int g_x;
 	string concat = "";
 	long long h;
-	int h_int;
-	int conc = 0;
+	char bin;
+
+    //Run input and find LSH_Manhattan k times
+    //For every k time you run, flip coin for 0,1 
+    //  check if it exists inside map F_function and if not then map it
+
+    //Make and return bitstring with h1,h2,...,hk
 
 	for(int i = 0; i < k; i++){
-		h = points[position].LSH_Manhattan(M,m,w,s_params,i);
+		h = points[position].LSH_Manhattan(M, m, w, s_params, i);
 
-		char bin = hcube->Insert_to_F(h); // returns 0 or 1 
+		bin = hcube->Insert_to_F(h); // Returns 0 or 1 
 
 		concat += to_string(bin);
 		
 	}
-
+	cout << "bitstring is" << concat;
 	return concat;
-
 }
-*/
+
 
 /* Returning the image in position */
 Point& Point_Array::Retrieve(int position){
