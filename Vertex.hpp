@@ -10,10 +10,14 @@ using namespace std;
 class Vertex{
 
 	public:
-		Vertex();
+		Vertex();	//initialize all vertex la
 		~Vertex();
+
+		string Get_label();
+		void Set_label(string label);
+
 		void Insert(int id);
-	
+		Search_record(int id);
 
 	private:
 		string label; // the label of the bucket , example: '00101'
