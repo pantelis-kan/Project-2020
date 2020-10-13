@@ -118,4 +118,6 @@ int Search_by_label(string label){
 
 
 
-
+char Hypercube::Insert_to_F(int h){
+	return '1';
+}

@@ -1,13 +1,16 @@
-#include "Cluster.hpp"
+
 
 #include <iostream>
 #include <string>
 #include <iterator>
 #include <random>
+#include <algorithm>
 #include <limits>
+#include <vector>
 
 using namespace std;
 
+#include "Cluster.hpp"
 #include "Point_Table.hpp"
 #include "Point.hpp"
 #include "utilities.hpp"
@@ -17,13 +20,25 @@ std::default_random_engine rand_generator(time(NULL));
 
 Cluster::Cluster(){
     centroid = new Point;
+    objective_function_value = 0.0;
 }
+
+void Cluster::Add_Objective(double val){
+    //cout << "Adding to objective function : " << val<<endl;
+    objective_function_value += val;
+}
+
+long double Cluster::Get_Objective(){
+    return objective_function_value;
+}
+
 
 Cluster::~Cluster(){
     delete centroid;
 }
 
-void Cluster::Assign_Centroid(Point* c){
+void Cluster::Assign_Centroid(Point* c,int id){
+   centroid_id = id; 
    Copy_Points(c,centroid);
 }
 
@@ -83,7 +98,7 @@ void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
     int input_points = input.get_ArraySize();
 
     // Pick the first centroid uniformly at random
-    std::uniform_real_distribution<double> first_centroid(0.0,(double)input_points); 
+    std::uniform_real_distribution<double> first_centroid(0.0,(double)input_points - 1); 
     double first = first_centroid(rand_generator);
 
     int first_centr = (int)first;
@@ -91,18 +106,16 @@ void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
     input.set_centroid(first_centr,true); // mark the first centroid
 
     Point* point = input.Retrieve_ptr(first_centr);
-    clusters[0].Assign_Centroid(point); // assign first centroid
+    clusters[0].Assign_Centroid(point,first_centr); // assign first centroid
 
-    cout << "1st centroid chosen at index " << first_centr << endl;
+    cout << "1st centroid chosen at index " << first_centr + 1 << endl;
 
-    double* prob;
-    double* D;
 
     for(int t = 1; t < k; t++ ){
 
 
-        prob = new double[input_points - t];
-        D = new double[input_points - t];
+        double prob[input_points - t];
+        double D[input_points - t];
 
         prob[0] = 0;
         
@@ -152,10 +165,11 @@ void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
             else{
                 // centroid found. Assign to cluster
                 cout << t+1 << " centroid chosen at index "<< index_of_x << endl;
-                clusters[t].Assign_Centroid(next_centroid);
+                clusters[t].Assign_Centroid(next_centroid,index_of_x);
                 is_centr = false;
             }
         }
+
 
         //delete[] prob;
         //delete[] D;
@@ -163,20 +177,100 @@ void Initialize_Centroids(Point_Array& input,Cluster* clusters,int k){
 
 }
 
-void Cluster::Assign_Point(int id){
-    points.push_back(id);
+int Cluster::Cluster_Size(){
+
+    return points.size();
 }
 
-void Cluster::Compute_New_Centroid(Point_Array& input){
+void Cluster::Assign_Point(int id){
+   
+    points.push_back(id);
+   // cout << "push back successful current size = " << points.size() << endl;
+}
 
-    std::list<int>::iterator it;
+void Cluster::Compute_New_Centroid(Point_Array& input,int cluster_num){
 
-	int dimension = centroid->get_dimension();
+	
 	int points_in_cluster = points.size();
+    int min_centroid;
+    double min_distance = std::numeric_limits<double>::max();
+    int next_id;
 
     if(points_in_cluster == 0) return;
-	int sum;
 
+    
+
+    int old_centroid_id = centroid_id;
+
+    cout << "Before loop ok" <<endl;
+
+    int dimension = this->centroid->get_dimension();
+
+    for(int j = 0; j < points_in_cluster; j++){
+
+        long double sum = 0;
+        /* for each point x that belongs in the cluster:
+            1) Compute the distances from x to all the other points int the cluster
+            2) Compute the distance from x to the centroid
+            3) Add the distances = objective function
+            4) Find the minimum sum
+
+            5) If one of the points has the minimum objective function,
+            place the id of x in the centroid_id and delete x from the vector
+            and add the old centroid_id to the vector
+
+            6) In the Point_Array table, disassociate the old centroid, set x as nearest cluster
+            and set x as the new centroid
+        */
+
+        std::list<int>::iterator it = points.begin();
+        std::advance(it, j);
+
+        next_id = *it;
+        Point& possible_centroid = input.Retrieve(next_id);
+        Point& centr = *centroid;
+
+        sum += Distance(centr,possible_centroid,1);
+
+        for(int m = 0; m < points_in_cluster; m++){
+            if(m == j) continue;
+
+            std::list<int>::iterator it = points.begin();
+            std::advance(it, m);
+
+            int id = *it;
+            Point& pt = input.Retrieve(id);
+
+            sum += Distance(pt,possible_centroid,1);
+        }
+
+        if(sum < min_distance){
+            min_distance = sum;
+            min_centroid = next_id;
+        }
+    }
+
+    // 5)
+    if(min_distance < objective_function_value){
+
+        objective_function_value = min_distance;
+
+        cout << "Found min < obj_function = " << min_distance <<endl;
+
+        Point* new_centroid = input.Retrieve_ptr(next_id);
+        new_centroid->set_centroid(true);
+
+        Remove_Point(next_id);
+        Assign_Point(old_centroid_id);
+        
+        centroid->set_centroid(false);
+        centroid->Assign_Cluster(cluster_num);
+
+        centroid = new_centroid;
+        centroid_id = next_id;
+    }
+
+    /*
 	// for each dimension
 	for(int i = 0; i < dimension; i++){
 		sum = 0;
@@ -192,6 +286,8 @@ void Cluster::Compute_New_Centroid(Point_Array& input){
 		sum = sum/points_in_cluster;
 		centroid->set_coordinate(i,sum);
 	}
+    */
+
     /*
     cout << "Printing new centroid " <<endl;
     centroid->PrintPoint();
@@ -201,5 +297,17 @@ void Cluster::Compute_New_Centroid(Point_Array& input){
 
 void Cluster::Remove_Point(int id){
 
-	points.remove(id);
+	//points.remove(id);
+
+    auto it = std::find(points.begin(), points.end(), id);
+
+    points.erase(it);
+}
+
+int Cluster::Retrieve_ID(int position){
+
+    std::list<int>::iterator it = points.begin();
+    std::advance(it, position);
+
+    return (*it);
 }

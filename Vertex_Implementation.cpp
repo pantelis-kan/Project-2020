@@ -10,6 +10,10 @@
 
     }
 
-	void Insert(int id){
+	void Vertex::Insert(int id){
 
+    }
+
+    void Vertex::Search_record(int id){
+        
     }

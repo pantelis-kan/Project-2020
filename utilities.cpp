@@ -39,8 +39,8 @@ int string_mod(string num, int a)
 
 
 // x^y mod M
-/*
-long long int powxy(long long int x, long long int y,int M){
+
+ int powxy(long long int x, int y,int M){
 
 	//cout << "Called with arguments : " << x << "   " << y <<endl;
 	if(y==0) return 1;
@@ -50,7 +50,7 @@ long long int powxy(long long int x, long long int y,int M){
 	return moduloMultiplication(t, t, M);
 
 }
-*/
+
 
 
  int power(long long int x, int y,  int p)  
@@ -77,6 +77,31 @@ long long int powxy(long long int x, long long int y,int M){
     return res;  
 }  
 
+int moduloMultiplication(long long int a, 
+                            int b, 
+                            int mod) 
+{ 
+    int res = 0; // Initialize result 
+  
+    // Update a if it is more than 
+    // or equal to mod 
+    a %= mod; 
+  
+    while (b) 
+    { 
+        // If b is odd, add a with result 
+        if (b & 1) 
+            res = (res + a) % mod; 
+  
+        // Here we assume that doing 2*a 
+        // doesn't cause overflow 
+        a = (2 * a) % mod; 
+  
+        b >>= 1; // b = b / 2 
+    } 
+  
+    return res; 
+} 
 
 int bigMod(int a,int  b,int c) {
     if (a == 0 || b == 0) {

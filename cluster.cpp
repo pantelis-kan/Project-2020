@@ -33,7 +33,7 @@ int main(){
     string filename = "train-images-idx3-ubyte";
 	string filename2 = "t10k-images-idx3-ubyte";
 
-    int N = NumberOfPoints(filename);   // number of input points
+    int N = NumberOfPoints(filename2);   // number of input points
 	int N_q = NumberOfPoints(filename2); // number of query points
 	int TableSize = N/8;
 	cout << "Number of points is : " << N <<endl;
@@ -46,21 +46,21 @@ int main(){
 
 
 	
-	if(input.FillPoints(filename) == 0) cout << "Filling input points successful"<<endl;
+	if(input.FillPoints(filename2) == 0) cout << "Filling input points successful"<<endl;
 	else exit(-1);
 	
 	if(queries.FillPoints(filename2) == 0) cout << "Filling query points successful"<<endl;
 	else exit(-1);
 
 
-	int dimension = input.get_dimension();
+	int dimension = queries.get_dimension();
 	cout << endl << "Dimension = "<< dimension <<endl;
 
 
     Cluster* clusters = new Cluster[k];  // create k clusters
 
 
-	Initialize_Centroids(input,clusters,k); // k-means++
+	
 
 	/*
 	int i = 0;
@@ -72,6 +72,8 @@ int main(){
 	cout << "Distance from centroid " << i << " to centroid " << j << " : " << Distance(centr1,centr2,1) <<endl;
 	*/
 
+	Initialize_Centroids(input,clusters,k); // k-means++
+	cout << "Initialization complete"<<endl;
 	Loyds_Clusters(input,clusters,k);
 }
 
@@ -115,10 +117,21 @@ void Loyds_Clusters(Point_Array& input,Cluster* clusters,int k){
 
 void Update(Point_Array& input,Cluster* clusters,int k){
 
-	for(int i = 0; i < k; i++){
-		
-		clusters[i].Compute_New_Centroid(input);
 
+	// for each cluster
+	for(int i = 0; i < k; i++){
+
+		for(int j = 0; j < k; j++){
+			cout << "Cluster " << j << " has : " << clusters[j].Cluster_Size() << " points " <<endl;
+		}
+
+		long double old_obj = clusters[i].Get_Objective();
+
+		cout << "Cluster " << i << " has obj function before update : " << old_obj <<endl;
+		
+		clusters[i].Compute_New_Centroid(input,i);
+		cout << "Cluster " << i << "has obj function after update : " << clusters[i].Get_Objective()<<endl;
+	
 	}
 
 }
@@ -147,6 +160,7 @@ bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k,int* assigned){
 		// for each cluster
 		for(int j = 0; j < k; j++){
 
+			// compute the distance from a point to all the clusters
 			Point& centr = *(clusters[j].get_centroid());
 			distance = Distance(point,centr,1);
 			
@@ -159,15 +173,30 @@ bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k,int* assigned){
 		}
 
 		int point_nearest_cluster = point.Nearest_Cluster_id();
+		
 		// check if point needs to change cluster
 		if( point_nearest_cluster != nearest_cluster){
 
 			// it's not the first time the point has been assigned to a cluster
 			// remove the point from the old cluster
-			if(point_nearest_cluster != -1) clusters[point_nearest_cluster].Remove_Point(i);
+			if(point_nearest_cluster != -1){
+				clusters[point_nearest_cluster].Remove_Point(i);
 
+				Point& old_centr = *(clusters[point_nearest_cluster].get_centroid());
+				int old_distance = Distance(point,old_centr,1);
+				
+
+				 // decrease the obj function of the old cluster
+				clusters[point_nearest_cluster].Add_Objective( - old_distance);
+			}
+
+			//cout << "Nearest cluster for point " << i << " is " << nearest_cluster <<endl;
+			
 			clusters[nearest_cluster].Assign_Point(i);
+			
+			clusters[nearest_cluster].Add_Objective(min_distance);
 			point.Assign_Cluster(nearest_cluster);
+			
 		}
 		else{
 			++points_not_changed;

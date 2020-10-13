@@ -52,19 +52,37 @@ void Point::AddtoPoint(int pos, int val){
  // computes h(x) 
  int Point::LSH_Manhattan(int M, const long long int m, double w, double** s_params, int current_k){ 	
 
-	int Dimension = get_dimension();
+	int Dimension = 784;
 
 	int* coeff = new int[Dimension];
 	int hash = 0;
 	int result;
 
+	int k = Dimension-1;
 
 	for(int i = 0; i < Dimension; i++){
-		coeff[i] = floor( (point[i] - s_params[current_k][i]) / w );
+
+
+		coeff[i] = floor( (  point[i] - s_params[current_k][i]) / w );
+
+		//cout << m << "  " << k << "  " << M << endl;
+		int power_m = power(m,k,M);
+		//cout << "powxy returned " << power_m <<endl;
+
+		int coeff_param = mod(coeff[i],M);
+		//cout << "coeff[i] " << coeff[i]<< " mod M = " << coeff_param <<endl;
+
+
+		//result = moduloMultiplication(power_m, coeff[j]%M, M); // (m^k mod M * aj mod M ) mod M
+		result = mod(bigMod(power_m , coeff_param,M) , M);
+		
+		//cout << "Adding " << result <<endl;
+		hash += (result % M); 
+		--k;
 		
 	}
 
-	int k = 0;
+	/*
 	for(int j = Dimension-1; j >= 0; j--){
 		int power_m = power(m,k,M);
 		//cout << "powxy returned " << power_m <<endl;
@@ -80,6 +98,7 @@ void Point::AddtoPoint(int pos, int val){
 		hash += (result % M); 
 		++k;
 	}
+	*/
 
 	delete[] coeff;
 	return (hash % M);
