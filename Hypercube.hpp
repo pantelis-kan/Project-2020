@@ -6,7 +6,6 @@
 #include <string>
 
 class Point_Array;
-//#include "Point_Table.hpp"
 #include "Point.hpp"
 #include "Vertex.hpp"
 
@@ -23,13 +22,14 @@ class Hypercube{
 			return vertex_t_size;
 		}
 
-
 		void Map_images(Point_Array& input, int N, int k, double** s_params, 
-					int M, long long int m, double w); //internally manages the hashing, mapping and insertion of points
+					int M, long long int m, double w, Hypercube* hcube); //internally manages the hashing, mapping and insertion of points
 		
 		void Insert(string label, int id); //inserting image with id in label=tag
-		int Search_by_label(string label);
+		string Search_by_label(string label); //searches vertex_table and returns position, if not found returns -1
 		
+		void print_vertex_table();
+
 		char Insert_to_F(int h); // create f(h) and store it in map
 
 	private:

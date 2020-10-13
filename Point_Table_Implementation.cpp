@@ -12,35 +12,31 @@
 #include <vector>
 #include <iterator>
 
+#include "Hypercube.hpp"
+
 using namespace std;
 
 Point_Array::Point_Array(int num){
-
 	points = new Point[num];
 	ArraySize = num;
-
 }
 
 
 Point_Array::~Point_Array(){
-
 	delete[] points;
-
 }
 
 int Point_Array::get_dimension(){
-
 	if(ArraySize > 0) return points[0].get_dimension();
 
 	return 0;
-
 }
 
-//testtt
+//printing image
 void Point_Array::PrintPoint(int position){
-
 	points[position].PrintPoint();
 }
+
 
 int Point_Array::FillPoints(string &input_fp){
 
@@ -166,13 +162,11 @@ string Point_Array::Compute_f(int position, int k, int M, const long long int m,
 
 	for(int i = 0; i < k; i++){
 		h = points[position].LSH_Manhattan(M, m, w, s_params, i);
-
 		bin = hcube->Insert_to_F(h); // Returns 0 or 1 
-
-		concat += to_string(bin);
+		concat = concat + bin; 
 		
 	}
-	cout << "bitstring is" << concat;
+//	cout << "bitstring is" << concat << " and leght is " << concat.length() << endl;
 	return concat;
 }
 */
