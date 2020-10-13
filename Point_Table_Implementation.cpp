@@ -1,6 +1,7 @@
 
 
 #include "Point_Table.hpp"
+#include "Hypercube.hpp"
 
 #include "utilities.hpp"
 #include <string>
@@ -145,7 +146,7 @@ int Point_Array::Compute_g(int position,int k,int M, const long long int m, doub
 
 }
 
-
+/*
 string Point_Array::Compute_f(int position, int k, int M, const long long int m, 
 					double w, double** s_params, Hypercube* hcube){
 
@@ -168,6 +169,7 @@ string Point_Array::Compute_f(int position, int k, int M, const long long int m,
 //	cout << "bitstring is" << concat << " and leght is " << concat.length() << endl;
 	return concat;
 }
+*/
 
 
 /* Returning the image in position */

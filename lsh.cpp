@@ -19,12 +19,14 @@
 using namespace std;
 
 int k = 4,L = 5;
-double w = 2000.0;
+double w = 30000.0;
 
 //const int M = 4294967291; 3.43597e+10
 
 int M = pow(2,32/k);
-const long long int m = 4294967291;
+
+//const long long int m = 536870912;  // 2^29
+const long long int m = 4294967291; // 2^32  - 5
 //const long long int M = 673109;
 
 std::default_random_engine rand_generator(time(NULL));
@@ -32,6 +34,7 @@ std::default_random_engine rand_generator(time(NULL));
 int FillPoints_static(string &input_fp,int** array);
 
 int main(){
+
 
 	string filename = "train-images-idx3-ubyte";
 	string filename2 = "t10k-images-idx3-ubyte";
@@ -58,7 +61,7 @@ int main(){
 	cout << endl << "Dimension = "<< dimension <<endl;
 	
 	// find Exact NN before approximate
-//	Exact_NN(input,queries,N,N_q);
+	//Exact_NN(input,queries,N,N_q);
 
 	// every h (h1, h2, ..., hk) has its own parameters for the amplification
 	// definition of si parameter with i = 0,1,...,d-1
@@ -107,7 +110,7 @@ int main(){
 
 	cout << "--Stage 2: Checking each query --" <<endl;
 
-	//Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
+	Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
 //	Nearest_Neighbors(H_Tables, input, queries, N_q, TableSize, s_params, L, k, M, m, w);
 
 	cout << "Stage 2 completed!" << endl;

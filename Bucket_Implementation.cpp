@@ -19,8 +19,8 @@ int Bucket::SizeofBucket(){
 }
 
 int Bucket::Pop_ID(int position){
-	int last = records.at(position);
-	return last;
+	int point_id = records.at(position);
+	return point_id;
 }
 
 

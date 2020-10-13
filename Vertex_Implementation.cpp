@@ -10,6 +10,7 @@
 
     }
 
+	void Vertex::Insert(int id){
 	string Vertex::Get_label(){
         return label;
     }
@@ -20,6 +21,10 @@
 	
     void Vertex::Insert(int id){
         records.push_back(id);
+    }
+
+    void Vertex::Search_record(int id){
+        
     }
 	
     void Vertex::Search_record(int id){

@@ -19,6 +19,7 @@ class Vertex{
 		void Set_label(string label);
 
 		void Insert(int id);
+		void Search_record(int id);
 		void Search_record(int id); //searches for an id. only prints for now
 		
 		string label; // the label of the bucket , example: '00101'

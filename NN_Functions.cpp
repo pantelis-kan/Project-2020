@@ -49,7 +49,8 @@ void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int N, int TableSi
 
 
 
-void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& queries,int N_q,int TableSize, double** s_params,int L,int k,int M,long long int m,double w){
+void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& queries,
+				int N_q,int TableSize, double** s_params,int L,int k,int M, long long int m,double w){
 
 	int query_bucket_position, nearest_neighbor_id;
 	double min_distance;
@@ -80,7 +81,7 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 			// for each element in the bucket
 			for(int i = 0; i < size_of_bucket; i++ ){
 
-				//if (i > 20*L) break; // 20*L are enough points
+				if (i > 10*L) break; // 20*L are enough points
 
 				// pop id from the query's bucket
 				int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
@@ -121,7 +122,7 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q){
 
 	long double dist_sum = 0.0;
 	
-
+	auto t1 = std::chrono::high_resolution_clock::now();
 	for(int j = 0; j < N_q; j++){
 		min_distance = std::numeric_limits<double>::max();
 		for(int i = 0; i < N; i++){
@@ -142,7 +143,10 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q){
 
 	 	}
 	
+	auto t2 = std::chrono::high_resolution_clock::now();		
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
+	//cout << "Time taken : " << duration <<endl;
 	cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 
 	}
