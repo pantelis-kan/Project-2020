@@ -21,10 +21,11 @@ class Vertex{
 		void Insert(int id);
 		void Search_record(int id); //searches for an id. only prints for now
 		
+		string label; // the label of the bucket , example: '00101'
+		vector<int> records; // a vector of point ids		
 
 	private:
-		string label; // the label of the bucket , example: '00101'
-		vector<int> records; // a vector of point ids
+
 
 };
 

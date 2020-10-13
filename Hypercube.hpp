@@ -30,6 +30,8 @@ class Hypercube{
 		
 		void print_vertex_table();
 
+		vector<int>* retrieve_records_vector(string query_label);
+
 		char Insert_to_F(int h); // create f(h) and store it in map
 
 	private:

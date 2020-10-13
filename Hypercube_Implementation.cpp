@@ -36,9 +36,7 @@ void Hypercube::Map_images(Point_Array& input, int N, int k, double** s_params,
 	//Insert label and id to vertex
 	
 	for (int i = 0; i < N; i++){
-//	for (int i = 0; i < 50; i++){
 		label = input.Compute_f(i, k, M, m, w, s_params, hcube);
-//		cout << i+1 << "->" << label << endl; 
 		Insert(label, i+1);
 	}
 	
@@ -152,7 +150,15 @@ void Hypercube::print_vertex_table(){
 
 }
 
+vector<int>* Hypercube::retrieve_records_vector(string query_label){
 
+	for (int i = 0; i < vertex_t_size; i++){
+		if (query_label.compare(vertex_table[i].Get_label()) == 0){
+			return &(vertex_table[i].records);
+		}
+		
+	}
 
+}
 
 

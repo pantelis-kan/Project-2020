@@ -198,3 +198,68 @@ double compute_w(Point_Array& input, int N){
 	return distance_sum/count_of_sums;
 
 }
+
+
+
+void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
+	string query_label;
+	vector<int> *input_records;
+	double min_distance;
+	int nearest_neighbor_id;
+
+	// for each query
+//	for (int q = 0; q < queries_count; q++){
+	for (int q = 0; q < 1; q++){
+		min_distance  = std::numeric_limits<double>::max();
+		bool found_nn = false;
+		
+		// find the position of the query in the cube table
+		query_label = queries.Compute_f(q, k, M_lsh, m_lsh, w, s_params, hcube);
+
+	cout << "Query label is: " << query_label << endl;
+
+		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
+		input_records = hcube->retrieve_records_vector(query_label);
+	cout << "Records vector has size:" << input_records->size() << endl;
+		//check here that query_label is same as retrieved vertex label
+
+//old stuff!!!!!!!!!!!!!!!
+		//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
+		// find how many elements the bucket/vertex has
+//		int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
+
+		// if the query fell on an empty bucket, ignore or .........?
+//		if (size_of_bucket == 0) continue; 
+//		found_nn = true;
+
+//old stuff!!!!!!!!!!!!!!!!
+
+		// for each element in the vector measure distance with query
+		for(int i = 0; i < input_records->size(); i++ ){
+
+			// pop id from the query's bucket
+			int id = input_records->at(i); 
+			Point& query_image = queries.Retrieve(q);
+			Point& input_image = input.Retrieve(id-1);
+
+			// compute Manhattan Distance for the query and the popped id
+			double distance = Distance(query_image, input_image, 1); 
+
+			//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+			if (distance < min_distance){
+				min_distance = distance;
+				nearest_neighbor_id = id;
+			}
+		}
+		
+//		if(found_nn != false)
+			cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+//		else
+//			cout << "Could not find approximate nearest neighbor for query " << q+1 <<endl;
+	}
+
+
+
+
+}
+
