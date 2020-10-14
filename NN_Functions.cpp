@@ -204,7 +204,7 @@ double compute_w(Point_Array& input, int N){
 }
 
 
-
+//probably change it so it returns a pointer to array storing the results for N nearest neibhors?
 void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
 	string query_label;
 	vector<int> *input_records;
@@ -227,39 +227,56 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 	cout << "Records vector has size:" << input_records->size() << endl;
 		//check here that query_label is same as retrieved vertex label
 
-//old stuff!!!!!!!!!!!!!!!
+
 		//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
 		// find how many elements the bucket/vertex has
 //		int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
 
 		// if the query fell on an empty bucket, ignore or .........?
-//		if (size_of_bucket == 0) continue; 
-//		found_nn = true;
 
-//old stuff!!!!!!!!!!!!!!!!
 
-		// for each element in the vector measure distance with query
-		for(int i = 0; i < input_records->size(); i++ ){
+		Point& query_image = queries.Retrieve(q);
+		int count_images_checked = 0;
+		double min_distance_previous = 0;
 
-			// pop id from the query's bucket
-			int id = input_records->at(i); 
-			Point& query_image = queries.Retrieve(q);
-			Point& input_image = input.Retrieve(id-1);
+		//Finding N Nearest Neibhors until found or thresolds are met (max probes and/or max images M)
+		for(int c=0; c < N; c++){
+			found_nn = false;
+			// for each element in the vector measure distance with query
+			for(int i = 0; i < input_records->size(); i++ ){
 
-			// compute Manhattan Distance for the query and the popped id
-			double distance = Distance(query_image, input_image, 1); 
+				// pop id from the query's bucket
+				int id = input_records->at(i); 
+				Point& input_image = input.Retrieve(id-1);
 
-			//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
-			if (distance < min_distance){
-				min_distance = distance;
-				nearest_neighbor_id = id;
+				// compute Manhattan Distance for the query and the popped id
+				double distance = Distance(query_image, input_image, 1); 
+
+				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+				if (distance < min_distance && distance > min_distance_previous){
+					min_distance = distance;
+					nearest_neighbor_id = id;
+					found_nn = true;
+				}
+				count_images_checked++;
+				//check if maximum number of images to be checked has been reached
+				if(M == count_images_checked)
+					break;
 			}
+			if(found_nn == true){
+				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				min_distance_previous = min_distance;
+				min_distance  = numeric_limits<double>::max();
+			}
+
+			if(M == count_images_checked)
+				break;
+			//if the count of NN already found is equal to sizeof the current vertex/bucket then probe with hamming
+
+			
 		}
 		
-//		if(found_nn != false)
-			cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
-//		else
-//			cout << "Could not find approximate nearest neighbor for query " << q+1 <<endl;
+//		
 	}
 
 

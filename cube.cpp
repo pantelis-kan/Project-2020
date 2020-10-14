@@ -19,7 +19,7 @@
 using namespace std;
 
 //default values in case no other given from user
-int k = 3, M=10, probes=2, N=1;
+int k = 3, M=10, probes=2, N=6;
 double R = 1.0;
 double w = 2000.0;
 
