@@ -2,7 +2,7 @@
 #define CLUSTER_HPP
 
 #include <iostream>
-#include <list>
+#include <vector>
 
 #include "Point.hpp"
 #include "Point_Table.hpp"
@@ -25,14 +25,16 @@ class Cluster{
         int Retrieve_ID(int position);
         void Add_Objective(double val);
         long double Get_Objective();
+        void Compute_Objective(Point_Array& input);
 
     private:
 
         Point* centroid; // centroid is a Point
-        list<int> points; // the point ids that belong to the cluster
+        vector<int> points; // the point ids that belong to the cluster
         int centroid_id; // the id of the centroid
 
         long double objective_function_value;
+
 
 };
 

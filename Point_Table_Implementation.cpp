@@ -107,6 +107,11 @@ int Point_Array::FillPoints(string &input_fp){
 
 }
 
+void Point_Array::AddtoPoint(int point_position,int coordinate_pos,int val){
+
+	points[point_position].AddtoPoint(coordinate_pos,val);
+}
+
 int Point_Array::get_ArraySize(){
 	return ArraySize;
 }

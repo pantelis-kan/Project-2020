@@ -28,4 +28,10 @@ int moduloMultiplication(long long int a,
                             int b, 
                             int mod);
 
+int partition (int* arr, int low, int high);
+void quickSort(int* arr, int low, int high);
+void swap(int* a, int* b);
+int binary_search_index(double *A,double key,int left, int right);
+
+
 #endif

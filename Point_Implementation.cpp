@@ -126,7 +126,7 @@ double Distance(Point& v1, Point& v2, int metric){
 	for(int i = 0; i < Dimension; i++){
 		
 		sum = abs(v1.point[i] - v2.point[i]);
-		sum = pow(sum,metric);
+		if(metric > 1) sum = pow(sum,metric);
 
 
 		//cout << "Iteration "<< i << ". Vector numbers : " << (*it1)<<"  "<<(*it2)<< ". Adding  "<<sum<<endl;
@@ -137,7 +137,7 @@ double Distance(Point& v1, Point& v2, int metric){
 
 	
 	//cout << "dist before root : "<<dist <<endl;
-	dist = pow(dist,1.0/metric);
+	if(metric > 1) dist = pow(dist,1.0/metric);
 
 	return dist;
 

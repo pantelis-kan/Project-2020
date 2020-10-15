@@ -28,6 +28,8 @@ class Point_Array{
 		void PrintPoint(int position);
 		bool check_centroid(int pos);
 		void set_centroid(int pos,bool val);
+		void AddtoPoint(int point_position,int coordinate_pos,int val);
+
 
 
 		// compute g(x) , by concatenation of h1(x)...hk(x)
