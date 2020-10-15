@@ -202,3 +202,108 @@ double compute_w(Point_Array& input, int N){
 	return distance_sum/count_of_sums;
 
 }
+
+
+//probably change it so it returns a pointer to array storing the results for N nearest neibhors?
+void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
+	string query_label;
+	vector<int> *input_records;
+	double min_distance;
+	int nearest_neighbor_id;
+
+	// for each query
+//	for (int q = 0; q < queries_count; q++){
+	for (int q = 0; q < 1; q++){
+		min_distance  = std::numeric_limits<double>::max();
+		bool found_nn = false;
+		bool do_hamming_now = false;
+		
+		// find the position of the query in the cube table
+		query_label = queries.Compute_f(q, k, M_lsh, m_lsh, w, s_params, hcube);
+
+	cout << "Query label is: " << query_label << endl;
+
+		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
+		input_records = hcube->retrieve_records_vector(query_label);
+	cout << "Records vector has size:" << input_records->size() << endl;
+		//check here that query_label is same as retrieved vertex label
+
+		// if the query fell on an empty bucket, ignore or .........?
+
+
+		Point& query_image = queries.Retrieve(q);
+		int count_images_checked = 0;
+		double min_distance_previous = 0;
+
+		//Initialize Hamming class needed for the probes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+		//Finding N Nearest Neibhors until found or thresolds are met (max probes and/or max images M)
+		for(int c=0; c < N; c++){
+			found_nn = false;
+			do_hamming_now = false; 
+			
+			// for each element in the vector measure distance with query
+			for(int i = 0; i < input_records->size(); i++ ){
+
+				// pop id from the query's bucket
+				int id = input_records->at(i); 
+				Point& input_image = input.Retrieve(id-1);
+
+				// compute Manhattan Distance for the query and the popped id
+				double distance = Distance(query_image, input_image, 1); 
+
+				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+				
+				//Checking for a NN excluding the previously found one
+				//Else means that we have already taken all of them so we need to move to another vertex
+				if (distance < min_distance && distance > min_distance_previous){
+					min_distance = distance;
+					nearest_neighbor_id = id;
+					found_nn = true;
+					count_images_checked++;
+				}
+				else{
+					do_hamming_now = true;
+					break;
+				}
+
+				//check if maximum number of images to be checked has been reached
+				if(M == count_images_checked)
+					break;
+			}
+			if(found_nn == true){
+				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				min_distance_previous = min_distance;
+				min_distance  = numeric_limits<double>::max();
+			}
+
+			if(M == count_images_checked)
+				break;
+
+			//if the count of NN already found is equal to sizeof the current vertex/bucket then probe with hamming
+			if (do_hamming_now == true){
+				if (hamming.get_usedprobes() == probes){
+					break;		//Thresold reached: we cannot go further so searching has to stop
+				}
+
+				//here: call class Hamming function to move_to_next
+				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes, returns the new label of the bucket we move to
+
+				//Change bucket to the next one to be checked
+				//input_records = hcube->retrieve_records_vector(query_label);
+				
+				
+			}
+			
+		}
+		
+//		
+	}
+
+
+
+
+}
+

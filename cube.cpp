@@ -14,11 +14,12 @@
 #include "Point_Table.hpp"
 #include "Point.hpp"
 #include "utilities.hpp"
+#include "NN_Functions.hpp"
 
 using namespace std;
 
 //default values in case no other given from user
-int k = 3, M=10, probes=2, N=1;
+int k = 3, M=100000, probes=2, N=10;
 double R = 1.0;
 double w = 2000.0;
 
@@ -33,16 +34,16 @@ int main(){
 	string filename = "train-images-idx3-ubyte";
 	string filename2 = "t10k-images-idx3-ubyte";
 
-	int N = NumberOfPoints(filename);   // number of input points
-	int N_q = NumberOfPoints(filename2); // number of query points
-	int TableSize = N/4;												// giati N/4?
+	int input_count = NumberOfPoints(filename);   // number of input points
+	int queries_count = NumberOfPoints(filename2); // number of query points
+	int TableSize = input_count/4;												// giati input_count/4?
 
-	cout << "Number of points is : " << N <<endl;
-	cout << "Number of queries is : " << N_q <<endl;
+	cout << "Number of input images is : " << input_count <<endl;
+	cout << "Number of queries is : " << queries_count <<endl;
 	cout << "TableSize = " << TableSize <<endl;
 
-	Point_Array input(N);
-	Point_Array queries(N_q);
+	Point_Array input(input_count);
+	Point_Array queries(queries_count);
 	
 	if(input.FillPoints(filename) == 0) cout << "Filling input points successful"<<endl;
 	else exit(-1);
@@ -55,7 +56,7 @@ int main(){
 	cout << endl << "Dimension = "<< dimension <<endl;
 
 	//d'=logN
-//	int d = log2(N);
+//	int d = log2(input_count);
 
 
 	// s_params for h functions
@@ -79,19 +80,17 @@ int main(){
 
 	cout << "Step 1: Mapping each image to a vertex" <<endl;
 	auto t1 = std::chrono::high_resolution_clock::now();		
-	cube.Map_images(input, N, k, s_params, M_lsh, m_lsh, w, &cube);
+	cube.Map_images(input, input_count, k, s_params, M_lsh, m_lsh, w, &cube);
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
 
 //	cube.print_vertex_table();
 	cout << "Stage 1 completed in " << duration << " seconds" << endl;
 
-
-	/*
 	cout << "Step 2: Finding Nearest Neighbors" <<endl;
-	Cube_Nearest_Neighbors();
+	Cube_Nearest_Neighbors(&cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
+
 	cout << "Step 2 complete"<<endl;
-	*/
 
 }
 
