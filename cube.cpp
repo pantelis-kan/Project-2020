@@ -19,7 +19,7 @@
 using namespace std;
 
 //default values in case no other given from user
-int k = 3, M=10, probes=2, N=6;
+int k = 3, M=100000, probes=2, N=10;
 double R = 1.0;
 double w = 2000.0;
 
@@ -38,7 +38,7 @@ int main(){
 	int queries_count = NumberOfPoints(filename2); // number of query points
 	int TableSize = input_count/4;												// giati input_count/4?
 
-	cout << "Number of points is : " << input_count <<endl;
+	cout << "Number of input images is : " << input_count <<endl;
 	cout << "Number of queries is : " << queries_count <<endl;
 	cout << "TableSize = " << TableSize <<endl;
 
