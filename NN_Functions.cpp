@@ -216,10 +216,13 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 	for (int q = 0; q < 1; q++){
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
-		bool do_hamming_now = false;
 		
 		// find the position of the query in the cube table
 		query_label = queries.Compute_f(q, k, M_lsh, m_lsh, w, s_params, hcube);
+
+		//Initialize Hamming class needed for the probes. Make and delete for every query
+		Hamming* hamming = new Hamming(query_label);
+		bool do_hamming_now = false;
 
 	cout << "Query label is: " << query_label << endl;
 
@@ -230,13 +233,9 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 
 		// if the query fell on an empty bucket, ignore or .........?
 
-
 		Point& query_image = queries.Retrieve(q);
 		int count_images_checked = 0;
 		double min_distance_previous = 0;
-
-		//Initialize Hamming class needed for the probes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
 
 		//Finding N Nearest Neibhors until found or thresolds are met (max probes and/or max images M)
@@ -283,23 +282,23 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 				break;
 
 			//if the count of NN already found is equal to sizeof the current vertex/bucket then probe with hamming
-			if (do_hamming_now == true){
-				if (hamming.get_usedprobes() == probes){
+/*			if (do_hamming_now == true){
+				
+				if (hamming->get_usedprobes() == probes){
 					break;		//Thresold reached: we cannot go further so searching has to stop
 				}
 
-				//here: call class Hamming function to move_to_next
-				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes, returns the new label of the bucket we move to
-
+				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
+				//Returns the new label of the bucket we move to
+				query_label = hamming->move_to_next();
 				//Change bucket to the next one to be checked
-				//input_records = hcube->retrieve_records_vector(query_label);
+				input_records = hcube->retrieve_records_vector(query_label);
 				
 				
 			}
-			
-		}
-		
-//		
+*/		}
+		delete hamming;	
+
 	}
 
 

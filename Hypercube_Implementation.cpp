@@ -1,5 +1,7 @@
 #include "Hypercube.hpp"
 #include <random>
+#include <bitset>
+
 #include "Point_Table.hpp"
 
 
@@ -158,6 +160,72 @@ vector<int>* Hypercube::retrieve_records_vector(string query_label){
 		}
 		
 	}
+
+}
+
+
+Hamming::Hamming(string original_label){
+	initial_label = original_label;
+	current_label_in_use = original_label;
+
+	labels_Hamming.insert(pair<string, int>(original_label, 0));
+	int lenght = initial_label.length();
+	int max_value = pow(2,lenght)-1;
+
+cout << endl << "Lenght:" << lenght << " max_value: " << max_value << endl;
+
+	int label_bin = stoi (original_label, nullptr, 2);
+	int xor_result_int;
+	string xor_result_str;
+	string new_label;
+	string temp;
+
+cout << "label_bin is:" << label_bin << endl; 
+
+	for (int i = 1; i <= lenght; i++){
+		for(int j = 0; j <= max_value; j++){
+			//do XOR between labels number and j
+			xor_result_int = label_bin ^ j;
+			xor_result_str = bitset< 32 >( xor_result_int ).to_string();
+			//xor_result_str.to_string(xor_result_int);
+cout << "xor result is: " << xor_result_str << "  " << xor_result_int << endl;
+			//if XOR result is equal to i then add to labels_Hamming with bit sting of j and ham_dist=i
+			if (count(xor_result_str.begin(), xor_result_str.end(), '1') == i){
+				temp = bitset< 32 >( j ).to_string();
+				new_label = temp.substr(32-lenght);
+cout << endl << "new label to be inserted is: " << new_label << endl;
+				labels_Hamming.insert(pair<string, int>(new_label, i));
+			}
+		}
+	}
+
+	print();
+	
+
+}
+
+Hamming::~Hamming(){
+
+}
+
+int Hamming::get_usedprobes(){
+	return used_probes;
+}
+
+void Hamming::print(){
+	cout << "-------Printing Hamming data-------------" << endl;
+
+	cout << "Initial Label was: " << initial_label << endl;
+
+	for(auto it = labels_Hamming.cbegin(); it != labels_Hamming.cend(); ++it){
+    	cout << it->first << " -> " << it->second << ", ";
+	}
+
+	cout << "-------End of Printing Hamming data-------------" << endl;
+
+}
+
+string Hamming::move_to_next(){
 
 }
 

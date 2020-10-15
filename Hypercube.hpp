@@ -40,4 +40,24 @@ class Hypercube{
 		int vertex_t_size = 0;
 };
 
+//based on initial_label we create a map with all the possible labels with ham_dist = 1,2,etc
+class Hamming{
+	public:
+		Hamming(string initial_label);
+		~Hamming();
+		
+		int get_usedprobes();
+		void print();
+
+
+		string move_to_next();
+
+	private:
+		string initial_label;
+		string current_label_in_use;
+		int used_probes = 0;		//everytime we use hamming we add a probe so we can stop when thresold is reached
+		map<string, int> labels_Hamming;			//label, ham_dist; 
+};
+
+
 #endif
