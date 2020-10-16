@@ -19,8 +19,8 @@
 using namespace std;
 
 //default values in case no other given from user
-int k = 3, M=100000, probes=2, N=10;
-double R = 1.0;
+int k = 3, M=60000, probes=3, N=10;
+double R = 10000;
 double w = 2000.0;
 
 int M_lsh = pow(2,32/k);
@@ -89,6 +89,8 @@ int main(){
 
 	cout << "Step 2: Finding Nearest Neighbors" <<endl;
 	Cube_Nearest_Neighbors(&cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
+
+	Cube_Range_Search(&cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
 
 	cout << "Step 2 complete"<<endl;
 

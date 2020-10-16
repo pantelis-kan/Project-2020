@@ -17,7 +17,7 @@ Hypercube::Hypercube(int k){
 }
 
 Hypercube::~Hypercube(){
-//    delete[] vertex_table;
+    delete[] vertex_table;
 }
 
 
@@ -168,9 +168,9 @@ Hamming::Hamming(string original_label){
 	initial_label = original_label;
 	current_label_in_use = original_label;
 
-	labels_Hamming.insert(pair<string, int>(original_label, 0));
-	int lenght = initial_label.length();
-	int max_value = pow(2,lenght)-1;
+	labels_Hamming.emplace_back(pair<string, int>(original_label, 0));
+	int length = initial_label.length();
+	int max_value = pow(2,length)-1;
 
 	int label_bin = stoi (original_label, nullptr, 2);
 	int xor_result_int;
@@ -179,7 +179,7 @@ Hamming::Hamming(string original_label){
 	string temp;
 
 
-	for (int i = 1; i <= lenght; i++){
+	for (int i = 1; i <= length; i++){
 		for(int j = 0; j <= max_value; j++){
 			//do XOR between labels number and j
 			xor_result_int = label_bin ^ j;
@@ -187,8 +187,8 @@ Hamming::Hamming(string original_label){
 			//if XOR result is equal to i then add to labels_Hamming with bit sting of j and ham_dist=i
 			if (count(xor_result_str.begin(), xor_result_str.end(), '1') == i){
 				temp = bitset< 32 >( j ).to_string();
-				new_label = temp.substr(32-lenght);
-				labels_Hamming.insert(pair<string, int>(new_label, i));
+				new_label = temp.substr(32-length);
+				labels_Hamming.emplace_back(pair<string, int>(new_label, i));
 			}
 		}
 	}
@@ -220,7 +220,15 @@ void Hamming::print(){
 }
 
 string Hamming::move_to_next(){
+	used_probes++;
+	auto it = labels_Hamming.cbegin();
+	for (int i = 0; i < used_probes; i++){
+		it++;
+	}
+
+	current_label_in_use = it->first; 
+
+	return current_label_in_use;
 
 }
-
 
