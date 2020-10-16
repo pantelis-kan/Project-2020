@@ -19,6 +19,7 @@
 #include "utilities.hpp"
 #include "Cluster.hpp"
 #include "Cluster_Functions.hpp"
+#include "Hypercube.hpp"
 
 using namespace std;
 
@@ -52,8 +53,15 @@ int main(){
 	Initialize_Centroids(input,clusters,k); // k-means++
 	cout << "Initialization complete"<<endl;
 
-	//Loyds_Clusters(input,clusters,k);
-	
+/*
+	auto t1 = std::chrono::high_resolution_clock::now();
+
+	Loyds_Clusters(input,clusters,k);
+
+	auto t2 = std::chrono::high_resolution_clock::now();		
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
+	cout << "Time taken : " << duration << " seconds" <<endl;
+*/
 	Reverse_Assignment(input,clusters,k,true);
 
 	delete[] clusters;

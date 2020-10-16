@@ -403,7 +403,7 @@ bool LSH_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,
 	// Insert clusters to a Point_Array class
 	Point_Array cluster_table(k);
 
-	// it tracks which points are assigned to avoid repetition
+	// stores distinct point ids that are assigned to a cluster
 	std::set<int> already_assigned;
 
 	// for each cluster
