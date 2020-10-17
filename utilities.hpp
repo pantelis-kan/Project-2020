@@ -13,6 +13,22 @@
 
 using namespace std;
 
+/*
+class results{
+    Public:
+        
+
+
+
+    Private:
+        int query_id;
+        vector <double> N_nearest;
+        vector <double> exact_N_nearest;
+        vector <int> Range_nearest;
+
+};
+*/      
+
 int modular(int base,unsigned int exp , unsigned int mod);
 int powxy(long long int x, int y,int M);
 int string_mod(string num, int a);
