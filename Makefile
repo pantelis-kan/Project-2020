@@ -3,11 +3,29 @@ DEPS = Bucket.hpp Hash_Table.hpp NN_Functions.hpp Point_Table.hpp Point.hpp util
 OBJ = lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o
 CFLAGS  = -g -Wall
 
-all: lsh
+all: lsh cluster
 
-lsh: lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o
-	$(CC) $(CFLAGS) -o lsh lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o
-	 
+cluster: cluster.o Cluster_Implementation.o Point_Implementation.o Point_Table_Implementation.o utilities.o Hash_Table_Implementation.o NN_Functions.o Bucket_Implementation.o Cluster_Functions.o Hypercube_Implementation.o Vertex_Implementation.o
+	$(CC) $(CFLAGS) -o cluster cluster.o Cluster_Implementation.o Point_Implementation.o Point_Table_Implementation.o utilities.o Hash_Table_Implementation.o NN_Functions.o Bucket_Implementation.o Cluster_Functions.o Hypercube_Implementation.o Vertex_Implementation.o
+
+lsh: lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o Hypercube_Implementation.o Vertex_Implementation.o
+	$(CC) $(CFLAGS) -o lsh lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o Hypercube_Implementation.o Vertex_Implementation.o
+
+cluster.o: cluster.cpp 
+	$(CC) -c cluster.cpp
+
+Cluster_Implementation.o: Cluster_Implementation.cpp
+	$(CC) -c Cluster_Implementation.cpp
+
+Cluster_Functions.o: Cluster_Functions.cpp
+	$(CC) -c Cluster_Functions.cpp
+
+Hypercube_Implementation.o: Hypercube_Implementation.cpp
+	$(CC) -c Hypercube_Implementation.cpp
+
+Vertex_Implementation.o: Vertex_Implementation.cpp
+	$(CC) -c Vertex_Implementation.cpp
+
 lsh.o: lsh.cpp
 	$(CC) -c lsh.cpp
 
@@ -31,4 +49,4 @@ utilities.o: utilities.cpp utilities.hpp
 
 .PHONY: clean //necessary in case file with name clean exists
 clean:
-	rm *.o lsh
+	rm *.o lsh cluster
