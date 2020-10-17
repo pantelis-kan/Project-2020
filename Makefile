@@ -52,4 +52,4 @@ Vertex_Implementation.o: Vertex_Implementation.cpp Vertex.hpp
 
 .PHONY: clean //necessary in case file with name clean exists
 clean:
-	rm *.o lsh cluster
+	rm *.o lsh cube cluster
