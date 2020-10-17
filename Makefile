@@ -3,10 +3,13 @@ DEPS = Bucket.hpp Hash_Table.hpp NN_Functions.hpp Point_Table.hpp Point.hpp util
 OBJ = lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o Hypercube_Implementation.o Vertex_Implementation.o
 CFLAGS  = -g -Wall
 
-all: lsh cluster
+all: lsh cube cluster
 
 lsh: lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o Hypercube_Implementation.o Vertex_Implementation.o
 	$(CC) $(CFLAGS) -o lsh lsh.o Bucket_Implementation.o Hash_Table_Implementation.o NN_Functions.o Point_Table_Implementation.o Point_Implementation.o utilities.o Hypercube_Implementation.o Vertex_Implementation.o
+
+cube: cube.o Point_Table_Implementation.o Hypercube_Implementation.o Point_Implementation.o Vertex_Implementation.o utilities.o NN_Functions.o Hash_Table_Implementation.o Bucket_Implementation.o
+	$(CC) $(CFLAGS) -o cube cube.o Point_Table_Implementation.o Hypercube_Implementation.o Point_Implementation.o Vertex_Implementation.o utilities.o NN_Functions.o Hash_Table_Implementation.o Bucket_Implementation.o
 
 cluster: cluster.o Cluster_Implementation.o Point_Implementation.o Point_Table_Implementation.o utilities.o Hash_Table_Implementation.o NN_Functions.o Bucket_Implementation.o Cluster_Functions.o Hypercube_Implementation.o Vertex_Implementation.o
 	$(CC) $(CFLAGS) -o cluster cluster.o Cluster_Implementation.o Point_Implementation.o Point_Table_Implementation.o utilities.o Hash_Table_Implementation.o NN_Functions.o Bucket_Implementation.o Cluster_Functions.o Hypercube_Implementation.o Vertex_Implementation.o
