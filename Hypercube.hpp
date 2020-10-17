@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 class Point_Array;
 #include "Point.hpp"
@@ -56,7 +57,9 @@ class Hamming{
 		string initial_label;
 		string current_label_in_use;
 		int used_probes = 0;		//everytime we use hamming we add a probe so we can stop when thresold is reached
-		map<string, int> labels_Hamming;			//label, ham_dist; 
+//		map<string, int> labels_Hamming;			//label, ham_dist; 
+		vector <pair <string, int> > labels_Hamming;
+
 };
 
 
