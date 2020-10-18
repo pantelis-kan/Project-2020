@@ -13,6 +13,7 @@ std::default_random_engine rand_generator(time(NULL));
 
 int k_lsh = 4,L = 5;
 double w = 30000.0;
+int k_hypercube = 3;
 
 //const int M = 4294967291; 3.43597e+10
 
@@ -306,31 +307,59 @@ void Distance_From_Centroids(Cluster* clusters, int k){
 
 void Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,bool lsh){
 
+	bool not_converged = true;
+	int loops = 0;
+
+	int old_assigned;
+	// in the first loop, all the points will be assigned
+	int new_assigned = input.get_ArraySize();
+
+	int TableSize = input.get_ArraySize() / 8;
+	int dimension = input.get_dimension();
+
+	Hash_Table**  H_Tables;
+	Hypercube* cube;
+
+	double**  s_params_cube = new double*[k_lsh];
+	for (int i = 0; i < k_lsh; i++){
+		s_params_cube[i] = new double[dimension];
+	} 
+
+	std::uniform_real_distribution<double> distribution(0.0,w);
+
+	// create s parameters for each hi. Since there is only one hash table, there are k rows in the table
+	for(int i = 0; i < k_lsh; i++){
+		for(int j = 0; j < dimension; j++) {
+			double rand = distribution(rand_generator);
+			s_params_cube[i][j] = rand;
+		}
+	}
+
+
+	// Both the lsh and the hypercube use the same parameters
+	double**  s_params = new double*[L*k];
+	
+	for (int i = 0; i < L*k_lsh; i++){
+		s_params[i] = new double[dimension];
+	} 
+
+
+	// create s parameters for each h(i). Since there are L hash tables, there are L*k rows in the table
+	for(int i = 0; i < L*k_lsh; i++){
+		
+		for(int j = 0; j < dimension; j++) {
+			double rand = distribution(param_rand_generator);
+			s_params[i][j] = rand;
+		}
+	}
+
+
+
 	// start LSH routine
 	if(lsh == true){
-		
-		int TableSize = input.get_ArraySize() / 8;
-		int dimension = input.get_dimension();
-
-		double**  s_params = new double*[L*k];
-		
-		for (int i = 0; i < L*k; i++){
-			s_params[i] = new double[dimension];
-		} 
-
-		std::uniform_real_distribution<double> distribution(0.0,w);
-
-		// create s parameters for each h(i). Since there are L hash tables, there are L*k rows in the table
-		for(int i = 0; i < L*k; i++){
-			
-			for(int j = 0; j < dimension; j++) {
-				double rand = distribution(param_rand_generator);
-				s_params[i][j] = rand;
-			}
-		}
-
+	
 		//create L hash tables
-		Hash_Table**  H_Tables = new Hash_Table*[L];
+		H_Tables = new Hash_Table*[L];
 
 		for (int i = 0; i < L; i++){	
 			H_Tables[i] = new Hash_Table(TableSize);
@@ -344,49 +373,67 @@ void Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,bool lsh){
 		
 		auto t2 = std::chrono::high_resolution_clock::now();		
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
-		cout << "Time taken : " << duration <<endl;
-
-		bool not_converged = true;
-		int loops = 0;
-
-		int old_assigned;
-		// in the first loop, all the points will be assigned
-		int new_assigned = input.get_ArraySize();
-
-		while(not_converged == true){
-			++loops;
-			if(loops > 40) break;
-
-			cout << endl << "Loop " << loops << endl;
-			old_assigned = new_assigned;
-			bool changed = LSH_Reverse_Assignment(input,clusters,k,H_Tables,s_params,&new_assigned, TableSize);
-
-			if(loops > 1){
-				if(abs(new_assigned - old_assigned) <= 10){
-					not_converged = false;
-					break;
-				}
-			}
-
-			if(changed == false){
-				not_converged = false;
-				break;
-			}
-
-			Update(input,clusters,k);
-			cout << "Update() finished" <<endl;
-		}
-		if(not_converged == true) cout << "Clustering failed"<<endl;
-		else cout << "Clustering successful" << endl;
+		cout << "Time taken : " << duration << " seconds" << endl;
+		
 	}	 
 	// start HyperCube routine
 	else{
 
-		cout << "TO DO LIST : HyperCube_Reverse_Assignment()" <<endl;
-		//HyperCube_Reverse();
+		// create a Hypercube instance
+		cube = new Hypercube(k_hypercube);
+		
+		//Map points to Hypercube 
+		cube->Map_images(input, input.get_ArraySize(), k_hypercube, s_params, M, m, w, cube);
 	}
 
+	while(not_converged == true){
+		++loops;
+		if(loops > 40) break;
 
+		cout << endl << "Loop " << loops << endl;
+		old_assigned = new_assigned;
+		bool changed;
+		
+		if(lsh == true) changed = LSH_Reverse_Assignment(input,clusters,k,H_Tables,s_params,&new_assigned, TableSize);
+		else changed = Hypercube_Reverse_Assignment(input,clusters,k,s_params_cube,cube,&new_assigned);
+
+
+		if(loops > 1){
+			if(abs(new_assigned - old_assigned) <= 10){
+				not_converged = false;
+				break;
+			}
+		}
+
+		if(changed == false){
+			not_converged = false;
+			break;
+		}
+
+		Update(input,clusters,k);
+		cout << "Update() finished" <<endl;
+	}
+	if(not_converged == true) cout << "Clustering failed"<<endl;
+	else cout << "Clustering successful" << endl;
+
+	if(lsh == true){
+
+		for(int i = 0; i < L*k_lsh; ++i) {
+      		delete[] H_Tables[i]; 
+			delete[] s_params[i]; 
+    	}
+    	//Free the array of pointers
+    	delete[] H_Tables;
+		delete[] s_params;
+	}
+	else{
+	
+		for (int i = 0; i < k_lsh; i++){
+			delete s_params_cube[i];
+		} 
+		delete s_params_cube;
+		delete cube;		
+	}
 }
 
 
@@ -524,4 +571,134 @@ bool LSH_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,
 	cout << "New points assigned = " << *assigned <<endl;
 	return changed;
 
+}
+
+
+bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,double** s_params_cube,
+									Hypercube* hcube,int* assigned){
+
+	vector<int> *bucket_records;
+
+	// Insert clusters to a Point_Array class
+	Point_Array cluster_table(k);
+	int dimension = input.get_dimension();
+	int input_points = input.get_ArraySize();
+
+	// stores distinct point ids that are assigned to a cluster
+	std::set<int> already_assigned;
+
+	// for each cluster
+	for(int i = 0; i < k; i++){	
+
+		string query_label;	
+		Point* centr = clusters[i].get_centroid();
+		Point& centroid_point = *centr;
+
+		// Fill the cluster Point_Array class with the centroids.
+		// They must be re-filled at each assignment, since
+		// the centroids change coordinates in each Update() call
+		for(int j = 0; j < dimension; j++){
+
+			int val = centr->get_coordinate(j);
+			cluster_table.AddtoPoint(i,j,val);
+		}
+
+		// find the position of the query in the cube table
+		query_label = cluster_table.Compute_f(i, k_hypercube, M, m, w, s_params_cube, hcube);
+
+		//Initialize Hamming class needed for the probes. Make and delete for every query
+		Hamming* hamming = new Hamming(query_label);
+
+		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
+		bucket_records = hcube->retrieve_records_vector(query_label);
+
+		int bucket_size = bucket_records->size();
+		if(bucket_size == 0) continue;
+
+		// for each element in the vertex
+		for(int j = 0; j < bucket_size; j++ ){
+
+			// pop id from the query's bucket
+			int id = bucket_records->at(i); 
+			Point& bucket_point = input.Retrieve(id-1);
+
+			int nearest_cluster = bucket_point.Nearest_Cluster_id();
+
+			// It's the first assignment for point
+			if(nearest_cluster == -1){
+
+				bucket_point.Assign_Cluster(i);
+				clusters[i].Assign_Point(id-1);
+				already_assigned.insert(id-1);
+			}
+			else{
+				// Ignore if it's the same cluster
+				if(nearest_cluster == i){ 
+					break;
+				}
+
+				// The point was already assigned to a different cluster
+				// Calculate distance from point to the two clusters
+				Point& old_centroid_point = *(clusters[nearest_cluster].get_centroid());
+				
+				int old_cluster_distance = Distance(old_centroid_point,bucket_point,1);
+				int new_cluster_distance = Distance(centroid_point,bucket_point,1);
+
+				// If the new distance is better, assign the point to the new
+				// cluster, and dissasociate the old cluster from the point
+				if(new_cluster_distance < old_cluster_distance){
+					
+					bucket_point.Assign_Cluster(i);
+					clusters[i].Assign_Point(id-1);	
+					clusters[nearest_cluster].Remove_Point(id-1);
+					already_assigned.insert(id-1);
+				}
+
+			}
+			
+		}			
+
+	}	
+
+	
+	int not_visited = 0;
+	int not_assigned = 0;
+
+	// for the points that were not assigned, compute loyd's distance
+	for(int i = 0; i < input_points; i++ ){
+
+		std::set<int>::iterator it = already_assigned.find(i);
+		// if i doesn't belong in the set
+		if(it == already_assigned.end()){
+			++not_visited;
+			Point& point = input.Retrieve(i);
+			int old_point_cluster = point.Nearest_Cluster_id();
+
+			int nearest_cluster_id = Min_Centroid_From_Point(point,clusters,k);
+			if(old_point_cluster != nearest_cluster_id){
+				
+				++not_assigned;
+				//cout << "Point id " << i << " found a better cluster: " << nearest_cluster_id << " .Old cluster id = " << old_point_cluster <<endl;
+				point.Assign_Cluster(nearest_cluster_id);
+				clusters[nearest_cluster_id].Assign_Point(i);
+
+				if(old_point_cluster != -1) clusters[old_point_cluster].Remove_Point(i);
+			}
+			
+		}
+
+	}
+
+	cout << "Set has " << already_assigned.size() << " points " <<endl;
+	cout << "Non visited points : " << not_visited <<endl;
+	cout << "Non assigned points : " << not_assigned <<endl;
+
+	int points_already_assigned = already_assigned.size() + not_assigned;
+
+	bool changed = true;
+	if(points_already_assigned == 0) changed = false;
+
+	*assigned = points_already_assigned;
+	cout << "New points assigned = " << *assigned <<endl;
+	return changed;
 }
