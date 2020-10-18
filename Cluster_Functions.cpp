@@ -498,7 +498,7 @@ bool LSH_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,
 					// Ignore if it's the same cluster
 					if(nearest_cluster == i){ 
 						++points_not_changed;
-						break;
+						continue;
 					}
 
 					// The point was already assigned to a different cluster
@@ -613,13 +613,14 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 		bucket_records = hcube->retrieve_records_vector(query_label);
 
 		int bucket_size = bucket_records->size();
+		cout << "Cluster " << i << " fell in vertex " << query_label << " with size " << bucket_size <<endl;
 		if(bucket_size == 0) continue;
 
 		// for each element in the vertex
 		for(int j = 0; j < bucket_size; j++ ){
 
 			// pop id from the query's bucket
-			int id = bucket_records->at(i); 
+			int id = bucket_records->at(j); 
 			Point& bucket_point = input.Retrieve(id-1);
 
 			int nearest_cluster = bucket_point.Nearest_Cluster_id();
@@ -634,7 +635,8 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 			else{
 				// Ignore if it's the same cluster
 				if(nearest_cluster == i){ 
-					break;
+					//already_assigned.insert(id-1);
+					continue;
 				}
 
 				// The point was already assigned to a different cluster
