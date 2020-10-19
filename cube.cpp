@@ -21,7 +21,7 @@ using namespace std;
 //default values in case no other given from user
 int k = 3, M=60000, probes=3, N=14;
 double R = 10000;
-double w = 2000.0;
+double w = 3000.0;
 
 int M_lsh = pow(2,32/k);
 const long long int m_lsh = 4294967291;
@@ -36,11 +36,9 @@ int main(){
 
 	int input_count = NumberOfPoints(filename);   // number of input points
 	int queries_count = NumberOfPoints(filename2); // number of query points
-	int TableSize = input_count/4;												// giati input_count/4?
 
 	cout << "Number of input images is : " << input_count <<endl;
 	cout << "Number of queries is : " << queries_count <<endl;
-	cout << "TableSize = " << TableSize <<endl;
 
 	Point_Array input(input_count);
 	Point_Array queries(queries_count);
@@ -114,7 +112,7 @@ int main(){
 //		auto it_exact_distance = temp_exact_N_nearest.cbegin();
 
 		for(auto it_id = temp_N_nearest_id.cbegin(); it_id != temp_N_nearest_id.cend(); ++it_id){
-    		final_results << "Nearest neibhor-" << counter << ": " << *it_id << endl;
+    		final_results << "Nearest neighbor-" << counter << ": " << *it_id << endl;
 			final_results << "distanceHypercube: " << *it_distance << endl;
 //			final_results << "distanceTrue: " << *it_exact_distance << endl;
 

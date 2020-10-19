@@ -193,7 +193,7 @@ Hamming::Hamming(string original_label){
 		}
 	}
 
-	print();
+//	print();
 	
 
 }
