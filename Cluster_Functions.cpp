@@ -609,6 +609,9 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 		//Initialize Hamming class needed for the probes. Make and delete for every query
 		Hamming* hamming = new Hamming(query_label);
 
+
+		// DO- WHILE
+
 		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 		bucket_records = hcube->retrieve_records_vector(query_label);
 
@@ -619,6 +622,7 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 		// for each element in the vertex
 		for(int j = 0; j < bucket_size; j++ ){
 
+			if(M == j) break;
 			// pop id from the query's bucket
 			int id = bucket_records->at(j); 
 			Point& bucket_point = input.Retrieve(id-1);
@@ -658,8 +662,24 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 
 			}
 			
-		}			
+		}		
+	
 
+		int remaining = M - bucket_size;
+
+		int count = 0;
+		while(hamming->get_usedprobes() < probes){
+
+			if(remaining - count == 0) break
+			query_label = hamming->move_to_next();
+			//Change bucket to the next one to be checked
+			bucket_records = hcube->retrieve_records_vector(query_label);
+
+			if(bucket_records->size() == 0 ) continue;
+
+
+
+			++count;
 	}	
 
 	
