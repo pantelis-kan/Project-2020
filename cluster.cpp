@@ -62,7 +62,7 @@ int main(){
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
 	cout << "Time taken : " << duration << " seconds" <<endl;
 */
-	Reverse_Assignment(input,clusters,k,true);
+	Reverse_Assignment(input,clusters,k,false);
 
 	delete[] clusters;
 }

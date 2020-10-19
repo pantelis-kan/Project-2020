@@ -1,6 +1,7 @@
 
 #include "NN_Functions.hpp"
 
+#include <algorithm>
 #include <chrono>
 
 using namespace std;
@@ -112,7 +113,7 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 
 
 
-void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q){
+void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream& outfile,int* time_passed){
 
 	int nearest_neighbor_id;
 	double min_distance;
@@ -122,37 +123,40 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q){
 
 	long double dist_sum = 0.0;
 	
+	double distances[N]; // each query has maximum N neighbors 
+
 	auto t1 = std::chrono::high_resolution_clock::now();
 	for(int j = 0; j < N_q; j++){
-		min_distance = std::numeric_limits<double>::max();
+		//min_distance = std::numeric_limits<double>::max();
+		Point& query_point = queries.Retrieve(j);
+
 		for(int i = 0; i < N; i++){
-
-			Point& query_point = queries.Retrieve(j);
-			Point& input_point = input.Retrieve(i);
-
 	
+			Point& input_point = input.Retrieve(i);
 			distance = Distance(query_point,input_point,1);
 			
-			if(j == 0) dist_sum += distance;
-			//distance = Distance(input_point,query_point,1);
-
-			if (distance < min_distance){
-					min_distance = distance;
-					nearest_neighbor_id = i+1;
-	 			}
+			distances[i] = distance;
 
 	 	}
-	
+
 	auto t2 = std::chrono::high_resolution_clock::now();		
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();	 
+	
+	sort(distances, distances+N);
+	for(int i = 0; i < 50; i++){
+
+		if( i == 49) outfile << distances[i] << " " << duration << endl;
+		else outfile << distances[i] << endl;
+	}
 
 	//cout << "Time taken : " << duration <<endl;
-	cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+	//cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 
 	}
 
+
 	//cout << "distance sum : " << dist_sum <<endl;
-	cout << "Best w : " << dist_sum/N << endl;
+	//cout << "Best w : " << dist_sum/N << endl;
 
 }
 

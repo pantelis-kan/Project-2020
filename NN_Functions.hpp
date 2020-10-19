@@ -26,7 +26,7 @@ void Preprocessing(Hash_Table** H_Tables,Point_Array& input, int N, int TableSiz
 void Nearest_Neighbors(Hash_Table** H_Tables, Point_Array& input, Point_Array& queries,
 				int N_q, int TableSize, double** s_params,int L, int k, int M, long long int m, double w );
 
-void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q);
+void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q,ofstream& outfile,int* time_passed);
 double compute_w(Point_Array& input, int N);
 
 void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count,
