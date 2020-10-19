@@ -19,7 +19,7 @@
 using namespace std;
 
 //default values in case no other given from user
-int k = 3, M=60000, probes=3, N=10;
+int k = 3, M=60000, probes=3, N=14;
 double R = 10000;
 double w = 2000.0;
 
@@ -76,9 +76,10 @@ int main(){
 		}
 	}
 
-	Hypercube cube(k);  // k = d'
-
 	cout << "Step 1: Mapping each image to a vertex" <<endl;
+	
+	Hypercube cube(k);  // k = d'
+	
 	auto t1 = std::chrono::high_resolution_clock::now();		
 	cube.Map_images(input, input_count, k, s_params, M_lsh, m_lsh, w, &cube);
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -88,11 +89,59 @@ int main(){
 	cout << "Stage 1 completed in " << duration << " seconds" << endl;
 
 	cout << "Step 2: Finding Nearest Neighbors" <<endl;
-	Cube_Nearest_Neighbors(&cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
+	Results results[queries_count];
+	Cube_Nearest_Neighbors(results, &cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
 
-	Cube_Range_Search(&cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
+	Cube_Range_Search(results, &cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
 
 	cout << "Step 2 complete"<<endl;
+
+	cout << "Step 3: Exporting results to file" << endl;
+	ofstream final_results;
+	final_results.open("hypercube_results.txt", ios::out | ios::trunc);
+
+//	for (int i = 0; i < queries_count; i++){
+	for (int i = 0; i < 1; i++){
+		final_results << "Query: " << results[i].get_query_id() << endl;
+		
+        vector <int> temp_N_nearest_id = results[i].get_N_nearest_id();
+        vector <double> temp_N_nearest_distance = results[i].get_N_nearest_distance();
+//      vector <double> temp_exact_N_nearest = results[i].get_exact_N_nearest();
+        vector <int> temp_Range_nearest = results[i].get_Range_nearest();
+
+		int counter = 1;
+		auto it_distance = temp_N_nearest_distance.cbegin();
+//		auto it_exact_distance = temp_exact_N_nearest.cbegin();
+
+		for(auto it_id = temp_N_nearest_id.cbegin(); it_id != temp_N_nearest_id.cend(); ++it_id){
+    		final_results << "Nearest neibhor-" << counter << ": " << *it_id << endl;
+			final_results << "distanceHypercube: " << *it_distance << endl;
+//			final_results << "distanceTrue: " << *it_exact_distance << endl;
+
+			it_distance++;
+//			it_exact_distance++;
+			counter++;
+		}
+
+		//print times here also
+
+
+		final_results << endl;
+		final_results << "R-near neighbors:" << endl;		
+
+		for(auto it_range = temp_Range_nearest.cbegin(); it_range != temp_Range_nearest.cend(); ++it_range){
+			final_results << *it_range << endl;
+		}
+
+	}
+
+
+	final_results.close();
+
+	for (int i = 0; i < k; i++){
+		delete[] s_params[i];
+	}
+	delete[] s_params;
 
 }
 

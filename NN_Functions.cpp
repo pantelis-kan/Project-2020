@@ -205,7 +205,7 @@ double compute_w(Point_Array& input, int N){
 
 
 //probably change it so it returns a pointer to array storing the results for N nearest neibhors?
-void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
+void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
 	string query_label;
 	vector<int> *input_records;
 	double min_distance;
@@ -216,13 +216,13 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 	for (int q = 0; q < 1; q++){
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
+		multimap<double, int> all_NN_storage;
 		
 		// find the position of the query in the cube table
 		query_label = queries.Compute_f(q, k, M_lsh, m_lsh, w, s_params, hcube);
 
 		//Initialize Hamming class needed for the probes. Make and delete for every query
 		Hamming* hamming = new Hamming(query_label);
-		bool do_hamming_now = false;
 
 	cout << "Query label is: " << query_label << endl;
 
@@ -262,7 +262,9 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 					found_nn = true;
 				}
 
-				count_images_checked++;
+				//because you want to count the checked images only once and not N times
+				if(c == 0)	
+					count_images_checked++;
 
 				//check if maximum number of images to be checked has been reached
 				if(M == count_images_checked)
@@ -270,6 +272,8 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 			}
 			if(found_nn == true){
 				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				//make a multimap and insert there. then in the end results take N from there
+  				all_NN_storage.insert( pair<double, int>(min_distance, nearest_neighbor_id) );
 				min_distance_previous = min_distance;
 				min_distance  = numeric_limits<double>::max();
 				count_found_nn++;
@@ -279,7 +283,8 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 				break;
 
 			//if the count of NN already found is equal to sizeof the current vertex/bucket then probe with hamming
-			if (count_found_nn == 3){ // input_records->size()){
+			//also in case we fell in an empty bucket then we change vertex
+			if (count_found_nn == 5 || input_records->size() == 0){ // input_records->size()){
 				count_found_nn = 0; //changing vertex so initialize again the count
 				if (hamming->get_usedprobes() == probes){
 					break;		//Thresold reached: we cannot go further so searching has to stop
@@ -291,11 +296,32 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 				cout << "New query label after probing is: " << query_label << endl;
 				//Change bucket to the next one to be checked
 				input_records = hcube->retrieve_records_vector(query_label);
-				
+				min_distance_previous = 0;
+				min_distance  = numeric_limits<double>::max();
+
 				
 			}
 		}
-		//delete hamming;	
+
+		results[q].set_query_id(q+1);
+		multimap<double, int>::iterator it = all_NN_storage.begin();
+		
+		//check if empty, means that no nearest found which is weird
+		if (all_NN_storage.empty()){
+			cout << "No Approximate nearest found for query image: " << q+1 << endl; 
+			break;  
+		}
+
+		for (int i = 0; i < N; i++){
+			results[q].insert_N_nearest((*it).second, (*it).first);
+
+			if (it == all_NN_storage.end())
+				break;			//means we have found less than N neighbors
+
+			it++;
+		}
+
+		delete hamming;	
 		cout << "Total images checked before stopping:" << count_images_checked << endl;
 
 	}
@@ -307,7 +333,7 @@ void Cube_Nearest_Neighbors(Hypercube* hcube, Point_Array& input, int input_coun
 
 
 
-void Cube_Range_Search(Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
+void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
 	string query_label;
 	vector<int> *input_records;
 	double min_distance;
@@ -368,6 +394,8 @@ void Cube_Range_Search(Hypercube* hcube, Point_Array& input, int input_count, Po
 
 			if(found_nn == true){
 				cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				results[q].insert_Range_nearest(nearest_neighbor_id);
+				
 				min_distance_previous = min_distance;
 				min_distance  = R;
 			}
