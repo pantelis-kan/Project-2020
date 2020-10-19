@@ -125,8 +125,8 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream&
 	
 	double distances[N]; // each query has maximum N neighbors 
 
-	auto t1 = std::chrono::high_resolution_clock::now();
 	for(int j = 0; j < N_q; j++){
+		auto t1 = std::chrono::high_resolution_clock::now();
 		//min_distance = std::numeric_limits<double>::max();
 		Point& query_point = queries.Retrieve(j);
 
@@ -139,18 +139,18 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream&
 
 	 	}
 
-	auto t2 = std::chrono::high_resolution_clock::now();		
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();	 
+		auto t2 = std::chrono::high_resolution_clock::now();		
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();	 
 	
-	sort(distances, distances+N);
-	for(int i = 0; i < 50; i++){
+		sort(distances, distances+N);
+		for(int i = 0; i < 50; i++){
 
 		if( i == 49) outfile << distances[i] << " " << duration << endl;
 		else outfile << distances[i] << endl;
-	}
+		}
 
-	//cout << "Time taken : " << duration <<endl;
-	//cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+		//cout << "Time taken : " << duration <<endl;
+		//cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 
 	}
 
