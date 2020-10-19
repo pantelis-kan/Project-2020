@@ -81,7 +81,7 @@ int main(){
 	auto t1 = std::chrono::high_resolution_clock::now();		
 	cube.Map_images(input, input_count, k, s_params, M_lsh, m_lsh, w, &cube);
 	auto t2 = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 
 //	cube.print_vertex_table();
 	cout << "Stage 1 completed in " << duration << " seconds" << endl;

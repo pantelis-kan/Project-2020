@@ -150,8 +150,8 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream&
 			else outfile << distances[i] << endl;
 		}
 
-	//cout << "Time taken : " << duration <<endl;
-	//cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+		//cout << "Time taken : " << duration <<endl;
+		//cout << "Exact NN for query " << j+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 
 	}
 
