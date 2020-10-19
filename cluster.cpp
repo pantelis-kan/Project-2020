@@ -63,6 +63,7 @@ int main(){
 	cout << "Time taken : " << duration << " seconds" <<endl;
 */
 	Reverse_Assignment(input,clusters,k,false);
+	Silhouette(input,clusters,k);
 
 	delete[] clusters;
 }

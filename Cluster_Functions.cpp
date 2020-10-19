@@ -704,3 +704,64 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 	cout << "New points assigned = " << *assigned <<endl;
 	return changed;
 }
+
+
+void Silhouette(Point_Array& input,Cluster* clusters,int k){
+
+	int point_size = input.get_ArraySize();
+	int second_nearest;
+	double min_distance; 
+	int nearest;
+	double distance;
+
+	double s[point_size];
+
+	// for each point 
+	for(int i = 0; i < point_size; i++){
+
+		Point& pt = input.Retrieve(i);
+
+		nearest = pt.Nearest_Cluster_id();
+		min_distance = std::numeric_limits<double>::max();
+
+
+		for(int j = 0; j < k; j++){
+			if(j == nearest) continue;
+
+			Point& centr = *(clusters[j].get_centroid());
+			distance = Distance(pt,centr,1);
+
+			if (distance < min_distance){
+				min_distance = distance;
+				second_nearest = j;
+			}
+		}
+
+		double average_nearest = Average_Distance(input,pt,clusters[i]);
+		double average_second_nearest = Average_Distance(input,pt,clusters[second_nearest]);
+
+		s[i] = (average_nearest - average_second_nearest) / (std::max(average_nearest,average_second_nearest)) ;
+
+		if(s[i] <= 1 && s[i] >= 0) cout << "Point "<< i << " was correctly assigned to cluster, s[i] = " << s[i] << endl;
+		else cout << "Point "<< i << " was INcorrectly assigned to cluster, s[i] = " << s[i] << endl;
+			
+	}
+
+
+}
+
+double Average_Distance(Point_Array& input,Point& pt,Cluster& cluster){
+
+	int cluster_size = cluster.Cluster_Size();
+	double average = 0.0;
+
+	for(int j = 0; j < cluster_size; j++){
+		
+		int id = cluster.Retrieve_ID(j);
+		Point& point = input.Retrieve(id);
+
+		average += Distance(pt,point,1);
+	}
+
+	return average;
+}
