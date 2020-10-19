@@ -4,6 +4,61 @@
 
 using namespace std;
 
+
+Results::Results(){
+
+
+}
+
+Results::~Results(){
+
+
+}
+
+void Results::set_query_id(int id){
+    query_id = id;
+}
+
+void Results::insert_N_nearest(int nearest_neibhor_id, double distance){
+	N_nearest_id.emplace_back(nearest_neibhor_id);
+    N_nearest_distance.emplace_back(distance);
+}
+
+void Results::insert_exact_N_nearest(){
+
+
+}
+
+void Results::insert_Range_nearest(int nearest_neibhor_id){
+	Range_nearest.emplace_back(nearest_neibhor_id);
+
+}
+
+int Results::get_query_id(){
+    return query_id;
+}
+
+vector <int> Results::get_N_nearest_id(){
+    return N_nearest_id;
+}
+
+vector <double> Results::get_N_nearest_distance(){
+    return N_nearest_distance;
+}
+
+vector <double> Results::get_exact_N_nearest(){
+    return exact_N_nearest;
+
+}
+
+vector <int> Results::get_Range_nearest(){
+    return Range_nearest;
+}
+
+
+
+//----------------------Other various Utilities--------------------------
+
 /* Reversing an integer */
 int reverseInteger (int i) 
 {

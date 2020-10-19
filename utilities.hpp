@@ -10,24 +10,41 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
-/*
-class results{
-    Public:
+
+class Results{
+    public:
+        Results();
+        ~Results();
+
+        void set_query_id(int id);
+        void insert_N_nearest(int nearest_neibhor_id, double distance);
+        void insert_exact_N_nearest();
+        void insert_Range_nearest(int nearest_neibhor_id);        
         
+        int get_query_id();
+        vector <int> get_N_nearest_id();
+        vector <double> get_N_nearest_distance();
+        vector <double> get_exact_N_nearest();
+        vector <int> get_Range_nearest();
 
-
-
-    Private:
+    private:
         int query_id;
-        vector <double> N_nearest;
+        vector <int> N_nearest_id;
+        vector <double> N_nearest_distance;
         vector <double> exact_N_nearest;
         vector <int> Range_nearest;
 
 };
-*/      
+
+
+
+
+//----------------------Other various Utilities--------------------------
+
 
 int modular(int base,unsigned int exp , unsigned int mod);
 int powxy(long long int x, int y,int M);
