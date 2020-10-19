@@ -101,6 +101,7 @@ void Point::AddtoPoint(int pos, int val){
 	*/
 
 	delete[] coeff;
+	coeff = NULL;
 	return (hash % M);
 
 }

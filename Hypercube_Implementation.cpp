@@ -13,7 +13,12 @@ default_random_engine generator;
 //default_random_engine rand_generator(time(NULL));
 
 Hypercube::Hypercube(int k){
-	vertex_table = new Vertex[k];
+	//create Hypercube with vertex_table size 2^k
+	vertex_t_size = pow(2,k);
+	vertex_table = new Vertex[vertex_t_size];
+	
+
+	cout << "vertextable_size is " << vertex_t_size << endl;
 }
 
 Hypercube::~Hypercube(){
@@ -27,12 +32,7 @@ void Hypercube::Map_images(Point_Array& input, int N, int k, double** s_params,
 
 	string label;
 
-	//create Hypercube with vertex_table size 2^k
-	vertex_t_size = pow(2,k);
-	vertex_table = new Vertex[vertex_t_size];
-	
 
-	cout << "vertextable_size is " << vertex_t_size << endl;
 
 	//Run compute_f : Returns the necessary bitstring (necessary hashvalue)
 	//Insert label and id to vertex
