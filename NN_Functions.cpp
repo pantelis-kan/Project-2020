@@ -288,7 +288,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 
 			//if the count of NN already found is equal to sizeof the current vertex/bucket then probe with hamming
 			//also in case we fell in an empty bucket then we change vertex
-			if (count_found_nn == 5 || input_records->size() == 0){ // input_records->size()){
+			if (count_found_nn == input_records->size() || input_records->size() == 0){
 				count_found_nn = 0; //changing vertex so initialize again the count
 				if (hamming->get_usedprobes() == probes){
 					break;		//Thresold reached: we cannot go further so searching has to stop
@@ -308,21 +308,15 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		}
 
 		results[q].set_query_id(q+1);
-		multimap<double, int>::iterator it = all_NN_storage.begin();
+		//		multimap<double, int>::iterator it = all_NN_storage.cbegin();
 		
+		for (auto it = all_NN_storage.cbegin(); it != all_NN_storage.cend(); it++){
+			results[q].insert_N_nearest((*it).second, (*it).first);
+		}
+
 		//check if empty, means that no nearest found which is weird
 		if (all_NN_storage.empty()){
 			cout << "No Approximate nearest found for query image: " << q+1 << endl; 
-			break;  
-		}
-
-		for (int i = 0; i < N; i++){
-			results[q].insert_N_nearest((*it).second, (*it).first);
-
-			if (it == all_NN_storage.end())
-				break;			//means we have found less than N neighbors
-
-			it++;
 		}
 
 		delete hamming;	
@@ -388,8 +382,10 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 					nearest_neighbor_id = id;
 					found_nn = true;
 				}
-
-				count_images_checked++;
+	
+				//because you want to count the checked images only once and not N times
+				if(c == 0)	
+					count_images_checked++;
 
 				//check if maximum number of images to be checked has been reached
 				if(M == count_images_checked)
