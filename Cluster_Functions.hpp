@@ -31,7 +31,7 @@ bool LSH_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,
 						Hash_Table** H_Tables,double** params,int* assigned,int TableSize);
 
 bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,double** s_params_cube,
-									Hypercube* hcube,int* assigned);						
+									Hypercube* hcube,int* assigned,int probes, int Max_elements);						
 
 // Update is common 
 void Update(Point_Array& input,Cluster* clusters,int k);

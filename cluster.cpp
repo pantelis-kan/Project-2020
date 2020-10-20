@@ -62,7 +62,17 @@ int main(){
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>( t2 - t1 ).count();
 	cout << "Time taken : " << duration << " seconds" <<endl;
 */
-	Reverse_Assignment(input,clusters,k,false);
+
+
+	//Loyds_Clusters(input,clusters,k);
+
+	// LSH
+	Reverse_Assignment(input,clusters,k,true);
+
+	// Hypercube
+	//Reverse_Assignment(input,clusters,k,false);
+
+	cout << "Starting silhouette " <<endl;
 	Silhouette(input,clusters,k);
 
 	delete[] clusters;

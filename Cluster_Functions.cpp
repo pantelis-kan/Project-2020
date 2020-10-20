@@ -14,6 +14,8 @@ std::default_random_engine rand_generator(time(NULL));
 int k_lsh = 4,L = 5;
 double w = 30000.0;
 int k_hypercube = 3;
+int probes = 2;
+int Max_elements = 10;
 
 //const int M = 4294967291; 3.43597e+10
 
@@ -120,7 +122,7 @@ void Update(Point_Array& input,Cluster* clusters,int k){
 	// for each cluster
 	for(int i = 0; i < k; i++){
 
-		long double old_obj = clusters[i].Get_Objective();
+		//long double old_obj = clusters[i].Get_Objective();
 
 		//cout << "Cluster " << i << " has obj function before update : " << old_obj <<endl;
 		
@@ -395,7 +397,7 @@ void Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,bool lsh){
 		bool changed;
 		
 		if(lsh == true) changed = LSH_Reverse_Assignment(input,clusters,k,H_Tables,s_params,&new_assigned, TableSize);
-		else changed = Hypercube_Reverse_Assignment(input,clusters,k,s_params_cube,cube,&new_assigned);
+		else changed = Hypercube_Reverse_Assignment(input,clusters,k,s_params_cube,cube,&new_assigned,probes,Max_elements);
 
 
 		if(loops > 1){
@@ -416,12 +418,12 @@ void Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,bool lsh){
 	if(not_converged == true) cout << "Clustering failed"<<endl;
 	else cout << "Clustering successful" << endl;
 
+	
 	if(lsh == true){
 
-		for(int i = 0; i < L*k_lsh; ++i) {
-      		delete[] H_Tables[i]; 
-			delete[] s_params[i]; 
-    	}
+		for(int i = 0; i < L;  i++) delete H_Tables[i]; 
+		for(int i = 0; i < L*k_lsh; i++) delete[] s_params[i]; 
+    	
     	//Free the array of pointers
     	delete[] H_Tables;
 		delete[] s_params;
@@ -434,6 +436,8 @@ void Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,bool lsh){
 		delete s_params_cube;
 		delete cube;		
 	}
+	
+
 }
 
 
@@ -575,7 +579,7 @@ bool LSH_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,
 
 
 bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,double** s_params_cube,
-									Hypercube* hcube,int* assigned){
+									Hypercube* hcube,int* assigned,int probes, int Max_elements){
 
 	vector<int> *bucket_records;
 
@@ -583,6 +587,8 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 	Point_Array cluster_table(k);
 	int dimension = input.get_dimension();
 	int input_points = input.get_ArraySize();
+	int remaining;
+	int probes_count;
 
 	// stores distinct point ids that are assigned to a cluster
 	std::set<int> already_assigned;
@@ -609,78 +615,74 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 		//Initialize Hamming class needed for the probes. Make and delete for every query
 		Hamming* hamming = new Hamming(query_label);
 
+		remaining = Max_elements;
 
-		// DO- WHILE
-
-		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
-		bucket_records = hcube->retrieve_records_vector(query_label);
-
-		int bucket_size = bucket_records->size();
-		cout << "Cluster " << i << " fell in vertex " << query_label << " with size " << bucket_size <<endl;
-		if(bucket_size == 0) continue;
-
-		// for each element in the vertex
-		for(int j = 0; j < bucket_size; j++ ){
-
-			if(M == j) break;
-			// pop id from the query's bucket
-			int id = bucket_records->at(j); 
-			Point& bucket_point = input.Retrieve(id-1);
-
-			int nearest_cluster = bucket_point.Nearest_Cluster_id();
-
-			// It's the first assignment for point
-			if(nearest_cluster == -1){
-
-				bucket_point.Assign_Cluster(i);
-				clusters[i].Assign_Point(id-1);
-				already_assigned.insert(id-1);
-			}
-			else{
-				// Ignore if it's the same cluster
-				if(nearest_cluster == i){ 
-					//already_assigned.insert(id-1);
-					continue;
-				}
-
-				// The point was already assigned to a different cluster
-				// Calculate distance from point to the two clusters
-				Point& old_centroid_point = *(clusters[nearest_cluster].get_centroid());
-				
-				int old_cluster_distance = Distance(old_centroid_point,bucket_point,1);
-				int new_cluster_distance = Distance(centroid_point,bucket_point,1);
-
-				// If the new distance is better, assign the point to the new
-				// cluster, and dissasociate the old cluster from the point
-				if(new_cluster_distance < old_cluster_distance){
-					
-					bucket_point.Assign_Cluster(i);
-					clusters[i].Assign_Point(id-1);	
-					clusters[nearest_cluster].Remove_Point(id-1);
-					already_assigned.insert(id-1);
-				}
-
-			}
-			
-		}		
-	
-
-		int remaining = M - bucket_size;
-
-		int count = 0;
-		while(hamming->get_usedprobes() < probes){
-
-			if(remaining - count == 0) break
-			query_label = hamming->move_to_next();
-			//Change bucket to the next one to be checked
+		
+		do{
+			//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 			bucket_records = hcube->retrieve_records_vector(query_label);
 
-			if(bucket_records->size() == 0 ) continue;
+			int bucket_size = bucket_records->size();
+			cout << "Cluster " << i << " fell in vertex " << query_label << " with size " << bucket_size <<endl;
+			//cout << hamming->get_usedprobes() << "  " << probes_count <<endl;
+			if(bucket_size == 0) continue;
 
+			// for each element in the vertex
+			for(int j = 0; j < bucket_size; j++ ){
 
+				
+				if(remaining <= 0) break;
+				// pop id from the query's bucket
+				int id = bucket_records->at(j); 
+				Point& bucket_point = input.Retrieve(id-1);
 
-			++count;
-	}	
+				int nearest_cluster = bucket_point.Nearest_Cluster_id();
+
+				// It's the first assignment for point
+				if(nearest_cluster == -1){
+
+					--remaining;
+					bucket_point.Assign_Cluster(i);
+					clusters[i].Assign_Point(id-1);
+					already_assigned.insert(id-1);
+				}
+				else{
+					// Ignore if it's the same cluster
+					if(nearest_cluster == i){ 
+						//already_assigned.insert(id-1);
+						continue;
+					}
+
+					// The point was already assigned to a different cluster
+					// Calculate distance from point to the two clusters
+					Point& old_centroid_point = *(clusters[nearest_cluster].get_centroid());
+					
+					int old_cluster_distance = Distance(old_centroid_point,bucket_point,1);
+					int new_cluster_distance = Distance(centroid_point,bucket_point,1);
+
+					// If the new distance is better, assign the point to the new
+					// cluster, and dissasociate the old cluster from the point
+					if(new_cluster_distance < old_cluster_distance){
+						
+						--remaining;
+						bucket_point.Assign_Cluster(i);
+						clusters[i].Assign_Point(id-1);	
+						clusters[nearest_cluster].Remove_Point(id-1);
+						already_assigned.insert(id-1);
+					}
+
+				}
+				
+			}		
+	
+			query_label = hamming->move_to_next();
+			
+		}while(hamming->get_usedprobes() < probes);
+
+		remaining = Max_elements;
+		
+
+	}
 
 	
 	int not_visited = 0;
@@ -729,12 +731,14 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 void Silhouette(Point_Array& input,Cluster* clusters,int k){
 
 	int point_size = input.get_ArraySize();
-	int second_nearest;
+	cout <<"Input size "<< point_size <<endl;
+	int second_nearest = 0;
 	double min_distance; 
 	int nearest;
 	double distance;
 
 	double s[point_size];
+	
 
 	// for each point 
 	for(int i = 0; i < point_size; i++){
@@ -742,6 +746,7 @@ void Silhouette(Point_Array& input,Cluster* clusters,int k){
 		Point& pt = input.Retrieve(i);
 
 		nearest = pt.Nearest_Cluster_id();
+		//cout << i << "nearest cluster = " << nearest <<endl; 
 		min_distance = std::numeric_limits<double>::max();
 
 
@@ -755,18 +760,29 @@ void Silhouette(Point_Array& input,Cluster* clusters,int k){
 				min_distance = distance;
 				second_nearest = j;
 			}
+			//cout << min_distance << " " << second_nearest << endl;
 		}
 
-		double average_nearest = Average_Distance(input,pt,clusters[i]);
+		//cout << i << " before average "<<endl;
+		double average_nearest = Average_Distance(input,pt,clusters[nearest]);
 		double average_second_nearest = Average_Distance(input,pt,clusters[second_nearest]);
+		//cout << i << " after average "<<endl;
 
 		s[i] = (average_nearest - average_second_nearest) / (std::max(average_nearest,average_second_nearest)) ;
 
-		if(s[i] <= 1 && s[i] >= 0) cout << "Point "<< i << " was correctly assigned to cluster, s[i] = " << s[i] << endl;
-		else cout << "Point "<< i << " was INcorrectly assigned to cluster, s[i] = " << s[i] << endl;
+		//if(s[i] <= 1 && s[i] >= 0) cout << "Point "<< i << " was correctly assigned to cluster, s[i] = " << s[i] << endl;
+		//else cout << "Point "<< i << " was INcorrectly assigned to cluster, s[i] = " << s[i] << endl;
 			
 	}
 
+	double average_total = 0.0;
+
+	for(int i = 0; i < point_size; i++){
+		average_total += s[i];
+	}	 
+
+	average_total = average_total/point_size;
+	cout << "Silhouette total average : " << average_total << endl;
 
 }
 
@@ -783,5 +799,5 @@ double Average_Distance(Point_Array& input,Point& pt,Cluster& cluster){
 		average += Distance(pt,point,1);
 	}
 
-	return average;
+	return (average/cluster_size);
 }
