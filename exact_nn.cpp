@@ -39,7 +39,7 @@ int main(){
 	cout << endl << "Dimension = "<< dimension <<endl;
 	
     ofstream outfile;
-    outfile.open("exact_nn.txt", ios::out | ios::trunc );
+    outfile.open("exact_results.txt", ios::out | ios::trunc );
 
     int time_passed;
     Exact_NN(input,queries,N,N_q,outfile,&time_passed);
