@@ -7,18 +7,18 @@
 using namespace std;
 
 /* 	Assigns all images to buckets
-	int N : is the number of total images in the input 
+	int input_count : is the number of total images in the input 
 	int TableSize :
 	double** s_params: it's the s(i) necessary for the aplification of LSH
 */
-void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int N, int TableSize, double** s_params, int L, 
-					int k, int M, long long int m, double w ){
+void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int input_count, int TableSize, double** s_params, int L, 
+					int k, int M, long long int m, double w){
 
 
 	int bucket_position;
 
 	// for each point x in the input
-	for(int j = 0; j < N; j++ ){
+	for(int j = 0; j < input_count; j++ ){
 
 		auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -50,62 +50,86 @@ void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int N, int TableSi
 
 
 
-void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& queries,
-				int N_q,int TableSize, double** s_params,int L,int k,int M, long long int m,double w){
+void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& input, Point_Array& queries,
+				int queries_count,int TableSize, double** s_params,int L,int k,int M, long long int m, double w, int N){
 
 	int query_bucket_position, nearest_neighbor_id;
 	double min_distance;
 
 
 	// for each query
-	for (int q = 0; q < N_q; q++){
+//	for (int q = 0; q < queries_count; q++){
+	for (int q = 0; q < 1; q++){
 
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
+		multimap<double, int> all_NN_storage;
+		double min_distance_previous = 0;
 
-		// for each hash table
-		for (int l = 0; l < L; l++){
-			
-			// find the position of the query in the lth hash table
-			query_bucket_position = queries.Compute_g(q,k,M,m,w,TableSize,s_params,l);
+		for(int c = 0; c < N; c++){
+			// for each hash table
+			for (int l = 0; l < L; l++){
 
-			//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
+				// find the position of the query in the lth hash table
+				query_bucket_position = queries.Compute_g(q,k,M,m,w,TableSize,s_params,l);
 
-			// find how many elements the bucket has
-			int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
+				//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
 
-			// if the query fell on an empty bucket, ignore
-			if (size_of_bucket == 0) continue; 
-			found_nn = true;
+				// find how many elements the bucket has
+				int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
 
-			//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
-			// for each element in the bucket
-			for(int i = 0; i < size_of_bucket; i++ ){
+				// if the query fell on an empty bucket, ignore
+				if (size_of_bucket == 0) continue; 
 
-				if (i > 10*L) break; // 20*L are enough points
+				
 
-				// pop id from the query's bucket
-				int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
+				//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
+				// for each element in the bucket
+				for(int i = 0; i < size_of_bucket; i++ ){
 
-				Point& query_point = queries.Retrieve(q);
-				Point& input_point = input.Retrieve(id-1);
+					if (i > 10*L) break; // 10*L are enough points
 
-				// compute Manhattan Distance for the query and the popped id
-				double distance = Distance(query_point,input_point,1); 
-				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
-				if (distance < min_distance){
-					min_distance = distance;
-					nearest_neighbor_id = id;
+					// pop id from the query's bucket
+					int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
+
+					Point& query_point = queries.Retrieve(q);
+					Point& input_point = input.Retrieve(id-1);
+
+					// compute Manhattan Distance for the query and the popped id
+					double distance = Distance(query_point,input_point,1); 
+					//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+					if (distance < min_distance && distance > min_distance_previous){
+						min_distance = distance;
+						nearest_neighbor_id = id;
+						found_nn = true;
+					}
+
 				}
+			}	
 
+			if(found_nn == true){
+				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				//make a multimap and insert there. then in the end results take N from there
+  				all_NN_storage.insert( pair<double, int>(min_distance, nearest_neighbor_id) );
+				min_distance_previous = min_distance;
+				min_distance  = numeric_limits<double>::max();
 			}
-			
+			else
+				cout << "Could not find approximate nearest neighbor for query " << q+1 <<endl;
 		}
 
-		if(found_nn != false)
-			cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
-		else
-			cout << "Could not find approximate nearest neighbor for query " << q+1 <<endl;
+		results[q].set_query_id(q+1);
+		
+		for (auto it = all_NN_storage.cbegin(); it != all_NN_storage.cend(); it++){
+			results[q].insert_N_nearest((*it).second, (*it).first);
+		}
+
+		//check if empty, means that no nearest found which is weird
+		if (all_NN_storage.empty()){
+			cout << "No Approximate nearest found for query image: " << q+1 << endl; 
+		}
+		
+
 	}
 
 
@@ -113,25 +137,25 @@ void Nearest_Neighbors(Hash_Table** H_Tables,Point_Array& input, Point_Array& qu
 
 
 
-void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream& outfile,int* time_passed){
+void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int queries_count,ofstream& outfile,int* time_passed){
 
 	int nearest_neighbor_id;
 	double min_distance;
 	double distance;
 
-	int num_of_points = N/4;
+	int num_of_points = input_count/4;
 
 	long double dist_sum = 0.0;
 	
-	double distances[N]; // each query has maximum N neighbors 
+	double distances[input_count]; // each query has maximum input_count neighbors 
 
 	
-	for(int j = 0; j < N_q; j++){
+	for(int j = 0; j < queries_count; j++){
 		auto t1 = std::chrono::high_resolution_clock::now();
 		//min_distance = std::numeric_limits<double>::max();
 		Point& query_point = queries.Retrieve(j);
 
-		for(int i = 0; i < N; i++){
+		for(int i = 0; i < input_count; i++){
 	
 			Point& input_point = input.Retrieve(i);
 			distance = Distance(query_point,input_point,1);
@@ -143,7 +167,7 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream&
 		auto t2 = std::chrono::high_resolution_clock::now();		
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();	 
 	
-		sort(distances, distances+N);
+		sort(distances, distances+input_count);
 		for(int i = 0; i < 50; i++){
 
 			if( i == 49) outfile << distances[i] << " " << duration << endl;
@@ -157,12 +181,12 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int N, int N_q,ofstream&
 
 
 	//cout << "distance sum : " << dist_sum <<endl;
-	//cout << "Best w : " << dist_sum/N << endl;
+	//cout << "Best w : " << dist_sum/input_count << endl;
 
 }
 
 
-double compute_w(Point_Array& input, int N){
+double compute_w(Point_Array& input, int input_count){
 	double distance_sum = 0.0;
 	double distance_a_b = 0.0;
 	int count_of_sums = 0;
@@ -174,10 +198,10 @@ double compute_w(Point_Array& input, int N){
 //    auto start = high_resolution_clock::now(); 
 
 /*
-	for (int i = 0; i < N; i++){
+	for (int i = 0; i < input_count; i++){
 		image_a = input.Retrieve_ptr(i);
 		cout << "we are at " << i << endl;
-		for (int j = i+1; j < N; j++){
+		for (int j = i+1; j < input_count; j++){
 			image_b = input.Retrieve_ptr(j);
 			distance_a_b = Distance(*image_a, *image_b, 1);
 			distance_sum += distance_a_b;
@@ -186,7 +210,7 @@ double compute_w(Point_Array& input, int N){
 	}
 */
 
-	for (int i = 0; i < N; i += 2){
+	for (int i = 0; i < input_count; i += 2){
 		image_a = input.Retrieve_ptr(i);
 		image_b = input.Retrieve_ptr(i+1);
 		distance_a_b = Distance(*image_a, *image_b, 1);
@@ -218,7 +242,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 
 	// for each query
 //	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 1; q++){
+	for (int q = 0; q < 2; q++){
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
 		multimap<double, int> all_NN_storage;
@@ -340,7 +364,7 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 
 	// for each query
 //	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 1; q++){
+	for (int q = 0; q < 2; q++){
 		min_distance  = R;
 		bool found_nn = false;
 		
@@ -409,7 +433,7 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 				break;
 
 		}
-		//delete hamming;	
+
 		cout << "Total images checked before stopping:" << count_images_checked << endl;
 
 	}

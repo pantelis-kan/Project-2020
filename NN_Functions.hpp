@@ -20,11 +20,14 @@
 #include "Hash_Table.hpp"
 #include "Hypercube.hpp"
 
-void Preprocessing(Hash_Table** H_Tables,Point_Array& input, int N, int TableSize, double** s_params,int L,
-					int k,int M,long long int m,double w);
+void Preprocessing(Hash_Table** H_Tables,Point_Array& input, int input_count, int TableSize, double** s_params, int L,
+					int k, int M, long long int m, double w);
 
-void Nearest_Neighbors(Hash_Table** H_Tables, Point_Array& input, Point_Array& queries,
-				int N_q, int TableSize, double** s_params,int L, int k, int M, long long int m, double w );
+void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables, Point_Array& input, Point_Array& queries,
+				int queries_count, int TableSize, double** s_params,int L, int k, int M, long long int m, double w, int N);
+
+void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& input, Point_Array& queries,
+				int queries_count, int TableSize, double** s_params,int L, int k, int M, long long int m, double w, double R);
 
 void Exact_NN(Point_Array& input, Point_Array& queries,int N,int N_q,ofstream& outfile,int* time_passed);
 double compute_w(Point_Array& input, int N);
