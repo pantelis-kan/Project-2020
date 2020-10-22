@@ -37,10 +37,12 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 void Update(Point_Array& input,Cluster* clusters,int k);
 
 // Silhouette Functions
-void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s);
+void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s,double* s_total);
 double Average_Distance(Point_Array& input,Point& pt,Cluster& cluster);
 
 // parsing cluster.conf
 void Configuration_File(string filename,int* K);
+void Output_Results(Point_Array& input,Cluster* clusters, int k ,double *s, string outputfile,string method,
+					double time,double s_total,bool complete);
 
 #endif

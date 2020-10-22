@@ -728,7 +728,7 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 }
 
 
-void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s){
+void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s,double* s_total){
 
 	int point_size = input.get_ArraySize();
 	cout <<"Input size "<< point_size <<endl;
@@ -781,6 +781,7 @@ void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s){
 
 	average_total = average_total/point_size;
 	cout << "Silhouette total average : " << average_total << endl;
+	*s_total = average_total;
 
 }
 
@@ -852,4 +853,59 @@ void Configuration_File(string filename,int* K){
    // cout << k << " " << L << " " << k_lsh << " " << M_cube << " " << k_cube << " " << probes << endl;
 
     infile.close();
+}
+
+void Output_Results(Point_Array& input,Cluster* clusters, int k ,double *s, string outputfile,string method,
+					double time,double s_total,bool complete){
+
+	int input_points = input.get_ArraySize();
+	ofstream outfile;
+    outfile.open(outputfile, ios::out | ios::trunc );
+
+	outfile << "Algorithm: ";
+
+	if(method == "Classic") outfile << "Lloyds" <<endl;
+	else if(method == "LSH") outfile << "Range Search LSH" <<endl;
+	else outfile << "Range Search Hypercube" <<endl;
+
+	int clustersize;
+
+	for(int i = 0; i < k; i++){
+
+		clustersize = clusters[i].Cluster_Size();
+		outfile << "CLUSTER-" << i+1 << " {size: " << clustersize << ", centroid: ";
+
+		Point* centr = clusters[i].get_centroid();
+		int dimension = centr->get_dimension();
+
+		for(int j = 0; j < dimension; j++){
+			outfile << centr->get_coordinate(j) << " ";
+		}
+		outfile << "}" << endl;
+	}
+
+	outfile << "clustering_time: " << time << endl;
+	outfile << "Silhouette: [" << endl;
+
+	for(int i = 0; i < input_points; i++){
+		outfile << s[i] << ",";
+	}
+	outfile << " " << s_total << "]" << endl;
+
+
+	if(complete == true){
+		
+		for(int i = 0; i < k; i++){
+
+			clustersize = clusters[i].Cluster_Size();
+			outfile << "CLUSTER-" << i+1 << "{centroid, ";
+
+			for(int j = 0; j < clustersize; j++){
+				outfile << clusters[i].Retrieve_ID(j) << ", ";
+			}
+			outfile << "}" << endl;
+		}
+	}
+
+	outfile.close();
 }
