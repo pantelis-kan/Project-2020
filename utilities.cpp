@@ -17,20 +17,26 @@ void Results::set_query_id(int id){
     query_id = id;
 }
 
-void Results::insert_N_nearest(int nearest_neibhor_id, double distance){
-	N_nearest_id.emplace_back(nearest_neibhor_id);
+void Results::insert_N_nearest(int nearest_neighbor_id, double distance){
+	N_nearest_id.emplace_back(nearest_neighbor_id);
     N_nearest_distance.emplace_back(distance);
 }
 
-void Results::insert_exact_N_nearest(){
-
-
+void Results::insert_exact_N_nearest(int nearest_neighbor_id){
+    exact_N_nearest.emplace_back(nearest_neighbor_id);
 }
 
-void Results::insert_Range_nearest(int nearest_neibhor_id){
+void Results::insert_tTrue(int tTrue){
+    exact_NN_time = tTrue;
+}     
 
-	Range_nearest.emplace_back(nearest_neibhor_id);
+void Results::insert_t_NN(int t_NN){
+    NN_time = t_NN;
+} 
 
+
+void Results::insert_Range_nearest(int nearest_neighbor_id){
+	Range_nearest.emplace_back(nearest_neighbor_id);
 }
 
 int Results::get_query_id(){
@@ -58,6 +64,13 @@ vector <int> Results::get_Range_nearest(){
     return Range_nearest;
 }
 
+int Results::get_tTrue(){
+    return exact_NN_time;
+}
+
+int Results::get_t_NN(){
+    return NN_time;
+}
 
 
 //----------------------Other various Utilities--------------------------

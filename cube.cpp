@@ -17,9 +17,17 @@
 #include "NN_Functions.hpp"
 
 using namespace std;
+using namespace std::chrono;
 
+//default values in case no other given from user
+//		int k = 14, M=10, probes=2, N=1;
+int k = 3, M=50000, probes=2, N=10;
 
-double w = 3000.0;
+double R = 10000.0;
+string filename = "train-images-idx3-ubyte";
+string filename2 = "t10k-images-idx3-ubyte";
+string outputfile = "hypercube_results.txt";
+double w = 4000.0;
 
 int M_lsh = pow(2,32/k);
 const long long int m_lsh = 4294967291;
@@ -29,68 +37,60 @@ std::default_random_engine rand_generator(time(NULL));
 
 int main(int argc, char* argv[]){
 	
-    if(argc == 17){ 
-        for (int i = 1; i < argc; i+=2){
-			string arg = argv[i];
-			if (arg == "-d"){
-				string filename = argv[i+1];
-			}
-			else if (arg == "-q"){
-				string filename2 = argv[i+1];
-			}
-			else if (arg == "-k"){
-				int k = atoi(argv[i+1]);
-				if (k == 0){
-					cout << "Wrong -k parameter! Please try again!" << endl;
-					exit(1);
-				}
-			}
-			else if (arg == "-M"){
-				int M = atoi(argv[i+1]);
-				if (M == 0){
-					cout << "Wrong -M parameter! Please try again!" << endl;
-					exit(1);
-				}				
-			}
-			else if (arg == "-probes"){
-				int probes = atoi(argv[i+1]);
-				if (probes == 0){
-					cout << "Wrong -probes parameter! Please try again!" << endl;
-					exit(1);
-				}				
-			}
-			else if (arg == "-o"){
-				string outputfile = argv[i+1];
-			}
-			else if (arg == "-N"){
-				int N = atoi(argv[i+1]);
-				if (N == 0){
-					cout << "Wrong -N parameter! Please try again!" << endl;
-					exit(1);
-				}
-			}
-			else if (arg == "-R"){
-				double R = atof(argv[i+1]);
-				if (R == 0.0){
-					cout << "Wrong -R parameter! Please try again!" << endl;
-					exit(1);
-				}
-			}
-			else{
-				cout << "Wrong parameteres! Please try again!" << endl;
+
+	for (int i = 1; i < argc; i+=2){
+		string arg = argv[i];
+		if (arg == "-d"){
+			string filename = argv[i+1];
+		}
+		else if (arg == "-q"){
+			string filename2 = argv[i+1];
+		}
+		else if (arg == "-k"){
+			int k = atoi(argv[i+1]);
+			if (k == 0){
+				cout << "Wrong -k parameter! Please try again!" << endl;
 				exit(1);
 			}
-
 		}
-    } 
-	else{
-		//default values in case no other given from user
-		int k = 14, M=10, probes=2, N=1;
-		double R = 10000.0;
-		string filename = "train-images-idx3-ubyte";
-		string filename2 = "t10k-images-idx3-ubyte";
-		string outputfile = "hypercube_results.txt";
+		else if (arg == "-M"){
+			int M = atoi(argv[i+1]);
+			if (M == 0){
+				cout << "Wrong -M parameter! Please try again!" << endl;
+				exit(1);
+			}				
+		}
+		else if (arg == "-probes"){
+			int probes = atoi(argv[i+1]);
+			if (probes == 0){
+				cout << "Wrong -probes parameter! Please try again!" << endl;
+				exit(1);
+			}				
+		}
+		else if (arg == "-o"){
+			string outputfile = argv[i+1];
+		}
+		else if (arg == "-N"){
+			int N = atoi(argv[i+1]);
+			if (N == 0){
+				cout << "Wrong -N parameter! Please try again!" << endl;
+				exit(1);
+			}
+		}
+		else if (arg == "-R"){
+			double R = atof(argv[i+1]);
+			if (R == 0.0){
+				cout << "Wrong -R parameter! Please try again!" << endl;
+				exit(1);
+			}
+		}
+		else{
+			cout << "Wrong parameteres! Please try again!" << endl;
+			exit(1);
+		}
+
 	}
+
 
 
 	int input_count = NumberOfPoints(filename);   // number of input points
@@ -133,17 +133,18 @@ int main(int argc, char* argv[]){
 	cout << "Step 1: Mapping each image to a vertex" <<endl;
 	
 	Hypercube cube(k);  // k = d'
-	
-	auto t1 = std::chrono::high_resolution_clock::now();		
+
+	auto t1 = std::chrono::high_resolution_clock::now();
 	cube.Map_images(input, input_count, k, s_params, M_lsh, m_lsh, w, &cube);
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-
+	
 //	cube.print_vertex_table();
-	cout << "Stage 1 completed in " << duration << " seconds" << endl;
+//	cout << "Stage 1 completed in " << duration << " seconds" << endl;
 
 	cout << "Stage 2: Finding Nearest Neighbors" <<endl;
 	Results results[queries_count];
+			
 	Cube_Nearest_Neighbors(results, &cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
 
 	Cube_Range_Search(results, &cube, input, input_count, queries, queries_count, s_params, M_lsh, m_lsh, w, k, M, probes, N, R);
@@ -151,6 +152,9 @@ int main(int argc, char* argv[]){
 	cout << "Stage 2 completed!"<<endl;
 
 	cout << "Stage 3: Exporting results to file" << endl;
+	string exact_NN_fp = "exact_results.txt";
+	Exact_NN_readonly(results, queries_count, N, exact_NN_fp);
+
 	ofstream final_results;
 	final_results.open(outputfile, ios::out | ios::trunc);
 
@@ -160,27 +164,27 @@ int main(int argc, char* argv[]){
 		
         vector <int> temp_N_nearest_id = results[i].get_N_nearest_id();
         vector <double> temp_N_nearest_distance = results[i].get_N_nearest_distance();
-//      vector <double> temp_exact_N_nearest = results[i].get_exact_N_nearest();
+	    vector <double> temp_exact_N_nearest = results[i].get_exact_N_nearest();
         vector <int> temp_Range_nearest = results[i].get_Range_nearest();
 
 		int counter = 1;
 		auto it_distance = temp_N_nearest_distance.cbegin();
-//		auto it_exact_distance = temp_exact_N_nearest.cbegin();
+		auto it_exact_distance = temp_exact_N_nearest.cbegin();
 
 		for(auto it_id = temp_N_nearest_id.cbegin(); it_id != temp_N_nearest_id.cend(); ++it_id){
     		final_results << "Nearest neighbor-" << counter << ": " << *it_id << endl;
 			final_results << "distanceHypercube: " << *it_distance << endl;
-//			final_results << "distanceTrue: " << *it_exact_distance << endl;
+			final_results << "distanceTrue: " << *it_exact_distance << endl;
 
 			it_distance++;
-//			it_exact_distance++;
+			it_exact_distance++;
 			counter++;
 		}
 
 		//print times here also
+		final_results << "tHypercube: " << results[i].get_t_NN() << endl; 
+		final_results << "tTrue: " << results[i].get_tTrue() << endl;
 
-
-		final_results << endl;
 		final_results << "R-near neighbors:" << endl;		
 
 		for(auto it_range = temp_Range_nearest.cbegin(); it_range != temp_Range_nearest.cend(); ++it_range){
@@ -197,6 +201,7 @@ int main(int argc, char* argv[]){
 	}
 	delete[] s_params;
 
+	return 0;
 }
 
 

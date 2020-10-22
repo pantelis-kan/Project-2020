@@ -4,7 +4,10 @@
 #include <algorithm>
 #include <chrono>
 
+
 using namespace std;
+using namespace std::chrono;
+
 
 /* 	Assigns all images to buckets
 	int input_count : is the number of total images in the input 
@@ -192,76 +195,47 @@ void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& inpu
 	}
 }
 
+//Exact_NN is prerun (because it takes long time) and results are stored in a .txt file
+//This function reads from the file the N required number of Exact NN for every query. 
+//N can be up to 50 neigbhors. For more N/A appears next to the result
+void Exact_NN_readonly(Results* results, int queries_count, int N, string& input_fp){
+	string line;
+	int nearest_neighbor_id;
+	int tTrue;
 
-/*
-void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& input, Point_Array& queries, int queries_count, int TableSize, double** s_params,int L, int k, int M, long long int m, double w, double R){
-	int query_bucket_position, nearest_neighbor_id;
-	double min_distance;
+	ifstream myfile;
+	myfile.open(input_fp, ios::out);
 
-	// for each query
-//	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 1; q++){
-
-		min_distance  = R;
-		bool found_nn;
-		multimap<double, int> all_NN_storage;
-		double min_distance_previous = 0;
-
-		do{
-			// for each hash table
-			for (int l = 0; l < L; l++){
-				found_nn = false;
-				// find the position of the query in the lth hash table
-				query_bucket_position = queries.Compute_g(q, k, M, m, w, TableSize, s_params, l);
-
-				//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
-
-				// find how many elements the bucket has
-				int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
-
-				// if the query fell on an empty bucket, ignore
-				if (size_of_bucket == 0) continue; 
-
-
-				//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
-				// for each element in the bucket
-				for(int i = 0; i < size_of_bucket; i++ ){
-
-					if (i > 10*L) break; // 10*L are enough points
-
-					// pop id from the query's bucket
-					int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
-
-					Point& query_point = queries.Retrieve(q);
-					Point& input_point = input.Retrieve(id-1);
-
-					// compute Manhattan Distance for the query and the popped id
-					double distance = Distance(query_point,input_point,1); 
-					//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
-					if (distance < min_distance && distance > min_distance_previous){
-						min_distance = distance;
-						nearest_neighbor_id = id;
-						found_nn = true;
-					}
-
-				}
-				if(found_nn == true){
-					cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
-					results[q].insert_Range_nearest(nearest_neighbor_id);
-					
-					min_distance_previous = min_distance;
-					min_distance  = R;
-				}	
-			}	
-
-		} while(found_nn == true);
+	if (!myfile.is_open()) {
+	    cout << "Cannot open file with Exact NN results!" << endl;
+		exit(1);
 	}
 
+//	for (int i = 0; i < queries_count; i++){
+	for (int i = 0; i < 2; i++){
+		for (int j = 0; j < 50; j++){
+			getline(myfile, line);
+			istringstream iss(line);
+        	iss >> nearest_neighbor_id >> tTrue;
+			results[i].insert_exact_N_nearest(nearest_neighbor_id);
+		}
+    	cout << nearest_neighbor_id << " " << tTrue << endl;	
+		results[i].insert_tTrue(tTrue);
+		if (N > 50){
+			int remaining = N - 50;
+			for (int q = 0; q < remaining; q++){
+				results[i].insert_exact_N_nearest(-1);
+			}
+		}
+	}
+
+	
+	myfile.close();
 
 }
-*/
 
-void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int queries_count,ofstream& outfile,int* time_passed){
+
+void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int queries_count, ofstream& outfile,int* time_passed){
 
 	int nearest_neighbor_id;
 	double min_distance;
@@ -288,10 +262,11 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int que
 
 	 	}
 
+		sort(distances, distances+input_count);
+
 		auto t2 = std::chrono::high_resolution_clock::now();		
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();	 
 	
-		sort(distances, distances+input_count);
 		for(int i = 0; i < 50; i++){
 
 			if( i == 49) outfile << distances[i] << " " << duration << endl;
@@ -367,6 +342,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 	// for each query
 //	for (int q = 0; q < queries_count; q++){
 	for (int q = 0; q < 2; q++){
+		
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
 		multimap<double, int> all_NN_storage;
@@ -390,6 +366,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		int count_images_checked = 0;
 		double min_distance_previous = 0;
 		int count_found_nn = 0;
+		auto t1 = std::chrono::high_resolution_clock::now();		
 
 		//Finding N Nearest Neibhors until found or thresolds are met (max probes and/or max images M)
 		for(int c=0; c < N; c++){
@@ -454,7 +431,12 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 
 				
 			}
+
 		}
+
+		auto t2 = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		results[q].insert_t_NN(duration);
 
 		results[q].set_query_id(q+1);
 		//		multimap<double, int>::iterator it = all_NN_storage.cbegin();
