@@ -1,2 +1,6 @@
 cube
 .vscode/settings.json
+lsh_results.txt
+lsh
+hypercube_results.txt
+.vscode/.gitignore
