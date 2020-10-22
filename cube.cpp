@@ -27,7 +27,7 @@ const long long int m_lsh = 4294967291;
 
 std::default_random_engine rand_generator(time(NULL));
 
-int main(){
+int main(int argc, char* argv[]){
 	
     if(argc == 17){ 
         for (int i = 1; i < argc; i+=2){
