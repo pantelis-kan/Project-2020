@@ -71,7 +71,7 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 			for (int l = 0; l < L; l++){
 
 				// find the position of the query in the lth hash table
-				query_bucket_position = queries.Compute_g(q,k,M,m,w,TableSize,s_params,l);
+				query_bucket_position = queries.Compute_g(q, k, M, m, w, TableSize, s_params, l);
 
 				//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
 
@@ -114,8 +114,10 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 				min_distance_previous = min_distance;
 				min_distance  = numeric_limits<double>::max();
 			}
-			else
-				cout << "Could not find approximate nearest neighbor for query " << q+1 <<endl;
+			else{
+				cout << "Could not find any other approximate nearest neighbor for query " << q+1 <<endl;
+				break;
+			}
 		}
 
 		results[q].set_query_id(q+1);
@@ -136,6 +138,128 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 }
 
 
+void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& input, Point_Array& queries, int queries_count, int TableSize, double** s_params,int L, int k, int M, long long int m, double w, double R){
+	int query_bucket_position, nearest_neighbor_id;
+	double min_distance;
+
+	// for each query
+//	for (int q = 0; q < queries_count; q++){
+	for (int q = 0; q < 1; q++){
+
+		bool found_nn;
+		multimap<double, int> all_NN_storage;
+
+		// for each hash table
+		for (int l = 0; l < L; l++){
+			min_distance  = R;
+			// find the position of the query in the lth hash table
+			query_bucket_position = queries.Compute_g(q, k, M, m, w, TableSize, s_params, l);
+
+			//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
+
+			// find how many elements the bucket has
+			int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
+
+			// if the query fell on an empty bucket, ignore
+			if (size_of_bucket == 0) continue; 
+
+
+			//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
+			// for each element in the bucket
+			for(int i = 0; i < size_of_bucket; i++ ){
+
+				if (i > 10*L) break; // 10*L are enough points
+
+				// pop id from the query's bucket
+				int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
+
+				Point& query_point = queries.Retrieve(q);
+				Point& input_point = input.Retrieve(id-1);
+
+				// compute Manhattan Distance for the query and the popped id
+				double distance = Distance(query_point,input_point,1); 
+				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+				if (distance < min_distance){
+					nearest_neighbor_id = id;
+					cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << distance <<endl;
+					results[q].insert_Range_nearest(nearest_neighbor_id);
+				}
+
+			}
+
+		}	
+
+	}
+}
+
+
+/*
+void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& input, Point_Array& queries, int queries_count, int TableSize, double** s_params,int L, int k, int M, long long int m, double w, double R){
+	int query_bucket_position, nearest_neighbor_id;
+	double min_distance;
+
+	// for each query
+//	for (int q = 0; q < queries_count; q++){
+	for (int q = 0; q < 1; q++){
+
+		min_distance  = R;
+		bool found_nn;
+		multimap<double, int> all_NN_storage;
+		double min_distance_previous = 0;
+
+		do{
+			// for each hash table
+			for (int l = 0; l < L; l++){
+				found_nn = false;
+				// find the position of the query in the lth hash table
+				query_bucket_position = queries.Compute_g(q, k, M, m, w, TableSize, s_params, l);
+
+				//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
+
+				// find how many elements the bucket has
+				int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
+
+				// if the query fell on an empty bucket, ignore
+				if (size_of_bucket == 0) continue; 
+
+
+				//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
+				// for each element in the bucket
+				for(int i = 0; i < size_of_bucket; i++ ){
+
+					if (i > 10*L) break; // 10*L are enough points
+
+					// pop id from the query's bucket
+					int id = H_Tables[l]->Pop_ID(query_bucket_position,i); 
+
+					Point& query_point = queries.Retrieve(q);
+					Point& input_point = input.Retrieve(id-1);
+
+					// compute Manhattan Distance for the query and the popped id
+					double distance = Distance(query_point,input_point,1); 
+					//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+					if (distance < min_distance && distance > min_distance_previous){
+						min_distance = distance;
+						nearest_neighbor_id = id;
+						found_nn = true;
+					}
+
+				}
+				if(found_nn == true){
+					cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+					results[q].insert_Range_nearest(nearest_neighbor_id);
+					
+					min_distance_previous = min_distance;
+					min_distance  = R;
+				}	
+			}	
+
+		} while(found_nn == true);
+	}
+
+
+}
+*/
 
 void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int queries_count,ofstream& outfile,int* time_passed){
 
