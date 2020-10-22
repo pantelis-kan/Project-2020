@@ -21,76 +21,72 @@ using namespace std;
 
 double w = 30000.0;
 
-int M = pow(2,32/k);
-
 //const long long int m = 536870912;  // 2^29
 const long long int m = 4294967291; // 2^32  - 5
 //const long long int M = 673109;
 
-std::default_random_engine rand_generator(time(NULL));
+int N = 1;
+double R = 10000.0;
+int k = 4, L = 5;
+string filename = "train-images-idx3-ubyte";
+string filename2 = "t10k-images-idx3-ubyte";
+string outputfile = "lsh_results.txt";
 
-int FillPoints_static(string &input_fp,int** array);
+int M = pow(2,32/k);
+
+std::default_random_engine rand_generator(time(NULL));
 
 int main(int argc, char* argv[]){
 
 
-    if(argc == 15){ 
-        for (int i = 1; i < argc; i+=2){
-			string arg = argv[i];
-			if (arg == "-d"){
-				string filename = argv[i+1];
-			}
-			else if (arg == "-q"){
-				string filename2 = argv[i+1];
-			}
-			else if (arg == "-k"){
-				int k = atoi(argv[i+1]);
-				if (k == 0){
-					cout << "Wrong -k parameter! Please try again!" << endl;
-					exit(1);
-				}
-			}
-			else if (arg == "-L"){
-				int L = atoi(argv[i+1]);
-				if (L == 0){
-					cout << "Wrong -L parameter! Please try again!" << endl;
-					exit(1);
-				}				
-			}
-			else if (arg == "-o"){
-				string outputfile = argv[i+1];
-			}
-			else if (arg == "-N"){
-				int N = atoi(argv[i+1]);
-				if (N == 0){
-					cout << "Wrong -N parameter! Please try again!" << endl;
-					exit(1);
-				}
-			}
-			else if (arg == "-R"){
-				double R = atof(argv[i+1]);
-				if (R == 0.0){
-					cout << "Wrong -R parameter! Please try again!" << endl;
-					exit(1);
-				}
-			}
-			else{
-				cout << "Wrong parameteres! Please try again!" << endl;
+    
+	for (int i = 1; i < argc; i+=2){
+		string arg = argv[i];
+		if (arg == "-d"){
+			filename = argv[i+1];
+		}
+		else if (arg == "-q"){
+			filename2 = argv[i+1];
+		}
+		else if (arg == "-k"){
+			k = atoi(argv[i+1]);
+			if (k == 0){
+				cout << "Wrong -k parameter! Please try again!" << endl;
 				exit(1);
 			}
-
 		}
-    } 
-	else{
-		int N = 1;
-		double R = 10000.0;
-		int k = 4, L = 5;
-		string filename = "train-images-idx3-ubyte";
-		string filename2 = "t10k-images-idx3-ubyte";
-		string outputfile = "lsh_results.txt";
+		else if (arg == "-L"){
+			L = atoi(argv[i+1]);
+			if (L == 0){
+				cout << "Wrong -L parameter! Please try again!" << endl;
+				exit(1);
+			}				
+		}
+		else if (arg == "-o"){
+			outputfile = argv[i+1];
+		}
+		else if (arg == "-N"){
+			N = atoi(argv[i+1]);
+			if (N == 0){
+				cout << "Wrong -N parameter! Please try again!" << endl;
+				exit(1);
+			}
+		}
+		else if (arg == "-R"){
+			R = atof(argv[i+1]);
+			if (R == 0.0){
+				cout << "Wrong -R parameter! Please try again!" << endl;
+				exit(1);
+			}
+		}
+		else{
+			cout << "Wrong parameteres! Please try again!" << endl;
+			exit(1);
+		}
+
 	}
 
-
+	cout << k << " " << L << " " << N << " " << R << " " <<outputfile <<endl;
 
 	int input_count = NumberOfPoints(filename);   // number of input points
 	int queries_count = NumberOfPoints(filename2); // number of query points
@@ -124,7 +120,6 @@ int main(int argc, char* argv[]){
 		s_params[i] = new double[dimension];
 	} 
 
-//nomizw edw prepei na kanoume ton ypologismo tou w opws eipe o xamodragon me th mesi apostasi epi 4 me 10 fores
 	//w = compute_w(input, input_count);
 
 
