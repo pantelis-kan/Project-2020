@@ -18,13 +18,8 @@
 
 using namespace std;
 
-int N = 5;
-double R = 10000.0;
 
-int k = 4,L = 5;
 double w = 30000.0;
-
-//const int M = 4294967291; 3.43597e+10
 
 int M = pow(2,32/k);
 
@@ -36,10 +31,66 @@ std::default_random_engine rand_generator(time(NULL));
 
 int FillPoints_static(string &input_fp,int** array);
 
-int main(){
+int main(int argc, char* argv[]){
 
-	string filename = "train-images-idx3-ubyte";
-	string filename2 = "t10k-images-idx3-ubyte";
+
+    if(argc == 15){ 
+        for (int i = 1; i < argc; i+=2){
+			string arg = argv[i];
+			if (arg == "-d"){
+				string filename = argv[i+1];
+			}
+			else if (arg == "-q"){
+				string filename2 = argv[i+1];
+			}
+			else if (arg == "-k"){
+				int k = atoi(argv[i+1]);
+				if (k == 0){
+					cout << "Wrong -k parameter! Please try again!" << endl;
+					exit(1);
+				}
+			}
+			else if (arg == "-L"){
+				int L = atoi(argv[i+1]);
+				if (L == 0){
+					cout << "Wrong -L parameter! Please try again!" << endl;
+					exit(1);
+				}				
+			}
+			else if (arg == "-o"){
+				string outputfile = argv[i+1];
+			}
+			else if (arg == "-N"){
+				int N = atoi(argv[i+1]);
+				if (N == 0){
+					cout << "Wrong -N parameter! Please try again!" << endl;
+					exit(1);
+				}
+			}
+			else if (arg == "-R"){
+				double R = atof(argv[i+1]);
+				if (R == 0.0){
+					cout << "Wrong -R parameter! Please try again!" << endl;
+					exit(1);
+				}
+			}
+			else{
+				cout << "Wrong parameteres! Please try again!" << endl;
+				exit(1);
+			}
+
+		}
+    } 
+	else{
+		int N = 1;
+		double R = 10000.0;
+		int k = 4, L = 5;
+		string filename = "train-images-idx3-ubyte";
+		string filename2 = "t10k-images-idx3-ubyte";
+		string outputfile = "lsh_results.txt";
+	}
+
+
 
 	int input_count = NumberOfPoints(filename);   // number of input points
 	int queries_count = NumberOfPoints(filename2); // number of query points
@@ -110,16 +161,15 @@ int main(){
 	cout << "Stage 2: Finding Nearest Neighbors" <<endl;
 	Results results[queries_count];
 
-//raname this function to start with LSH_ , add N and also give access to results class
 	LSH_Nearest_Neighbors(results, H_Tables, input, queries, queries_count, TableSize, s_params, L, k, M, m, w, N);
 
-//	LSH_Range_Search(results, H_Tables, input, queries, queries_count, TableSize, s_params, L, k, M, m, w, R);
+	LSH_Range_Search(results, H_Tables, input, queries, queries_count, TableSize, s_params, L, k, M, m, w, R);
 
 	cout << "Stage 2 completed!" << endl;
 
 	cout << "Stage 3: Exporting results to file" << endl;
 	ofstream final_results;
-	final_results.open("lsh_results.txt", ios::out | ios::trunc);
+	final_results.open(outputfile, ios::out | ios::trunc);
 
 //	for (int i = 0; i < queries_count; i++){
 	for (int i = 0; i < 1; i++){
