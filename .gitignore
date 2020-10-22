@@ -1,6 +1,10 @@
 cube
 .vscode/settings.json
+<<<<<<< HEAD
 lsh_results.txt
 lsh
 hypercube_results.txt
 .vscode/.gitignore
+=======
+exact_nn.txt
+>>>>>>> d2e68b9c075dd928c238f2f2604e79e412150ac4
