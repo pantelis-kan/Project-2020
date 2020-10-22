@@ -7,11 +7,9 @@ using namespace std;
 
 Results::Results(){
 
-
 }
 
 Results::~Results(){
-
 
 }
 
@@ -30,6 +28,7 @@ void Results::insert_exact_N_nearest(){
 }
 
 void Results::insert_Range_nearest(int nearest_neibhor_id){
+
 	Range_nearest.emplace_back(nearest_neibhor_id);
 
 }
@@ -52,6 +51,10 @@ vector <double> Results::get_exact_N_nearest(){
 }
 
 vector <int> Results::get_Range_nearest(){
+    sort(Range_nearest.begin(), Range_nearest.end()); 
+    auto last = std::unique(Range_nearest.begin(), Range_nearest.end());
+    Range_nearest.erase(last, Range_nearest.end());
+    
     return Range_nearest;
 }
 

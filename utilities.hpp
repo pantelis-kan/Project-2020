@@ -11,6 +11,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -39,7 +40,6 @@ class Results{
         vector <int> Range_nearest;
 
 };
-
 
 
 
