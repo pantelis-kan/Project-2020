@@ -47,6 +47,10 @@ int main(){
 	int dimension = input.get_dimension();
 	cout << endl << "Dimension = "<< dimension <<endl;
 
+	string configuration_filename = "cluster.conf";
+
+	Configuration_File(configuration_filename,&k);
+	
 	// create k clusters
     Cluster* clusters = new Cluster[k];  
 
@@ -72,8 +76,11 @@ int main(){
 	// Hypercube
 	//Reverse_Assignment(input,clusters,k,false);
 
+
+	double s[input.get_ArraySize()];
 	cout << "Starting silhouette " <<endl;
-	Silhouette(input,clusters,k);
+
+	Silhouette(input,clusters,k,s);
 
 	delete[] clusters;
 }

@@ -728,7 +728,7 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 }
 
 
-void Silhouette(Point_Array& input,Cluster* clusters,int k){
+void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s){
 
 	int point_size = input.get_ArraySize();
 	cout <<"Input size "<< point_size <<endl;
@@ -736,8 +736,6 @@ void Silhouette(Point_Array& input,Cluster* clusters,int k){
 	double min_distance; 
 	int nearest;
 	double distance;
-
-	double s[point_size];
 	
 
 	// for each point 
@@ -800,4 +798,58 @@ double Average_Distance(Point_Array& input,Point& pt,Cluster& cluster){
 	}
 
 	return (average/cluster_size);
+}
+
+void Configuration_File(string filename,int* K){
+
+	string line;
+
+    ifstream infile;
+    infile.open(filename, ios::in );
+    int line_count =  1;
+
+    string description,value;
+
+    while(getline(infile, line)){
+
+        istringstream iss(line);
+        iss >> description >> value;
+        cout << description << " " << value << endl;
+
+        switch(line_count){
+
+            case 1:
+                *K = stoi(value);
+            break;
+
+            case 2:
+                L = stoi(value);
+            break;
+
+            case 3:
+                k_lsh = stoi(value);
+            break;
+
+            case 4:
+                Max_elements = stoi(value);
+            break;
+
+            case 5:
+                k_hypercube = stoi(value);
+            break;
+
+            case 6:
+                probes = stoi(value);
+            break;
+
+            default:
+            break;
+        }
+
+        ++line_count;
+    }
+
+   // cout << k << " " << L << " " << k_lsh << " " << M_cube << " " << k_cube << " " << probes << endl;
+
+    infile.close();
 }

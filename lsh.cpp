@@ -159,6 +159,9 @@ int main(){
 
 	final_results.close();
 
+	for(int i = 0; i < L;  i++) delete H_Tables[i]; 
+	delete[] H_Tables;
+
 	for (int i = 0; i < k; i++){
 		delete[] s_params[i];
 	}
