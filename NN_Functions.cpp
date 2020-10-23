@@ -211,8 +211,8 @@ void Exact_NN_readonly(Results* results, int queries_count, int N, string& input
 		exit(1);
 	}
 
-//	for (int i = 0; i < queries_count; i++){
-	for (int i = 0; i < 2; i++){
+	for (int i = 0; i < queries_count; i++){
+//	for (int i = 0; i < 2; i++){
 		for (int j = 0; j < 50; j++){
 			getline(myfile, line);
 			istringstream iss(line);
@@ -340,8 +340,8 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 	int nearest_neighbor_id;
 
 	// for each query
-//	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 2; q++){
+	for (int q = 0; q < queries_count; q++){
+//	for (int q = 0; q < 2; q++){
 		
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
@@ -351,12 +351,31 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		query_label = queries.Compute_f(q, k, M_lsh, m_lsh, w, s_params, hcube);
 
 		//Initialize Hamming class needed for the probes. Make and delete for every query
-		Hamming* hamming = new Hamming(query_label);
+		Hamming* hamming = new Hamming(query_label, probes);
 
 	cout << "Query label is: " << query_label << endl;
 
 		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 		input_records = hcube->retrieve_records_vector(query_label);
+
+		while(input_records == NULL){
+			cout << "Records vector is empty!" << endl;
+
+			if (hamming->get_usedprobes() == probes)
+				break;		//Thresold reached: we cannot go further so searching has to stop
+			
+				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
+				//Returns the new label of the bucket we move to
+				query_label = hamming->move_to_next();
+				cout << "New query label after probing is: " << query_label << endl;
+				//Change bucket to the next one to be checked
+				input_records = hcube->retrieve_records_vector(query_label);
+			
+		}
+
+		if (hamming->get_usedprobes() == probes)
+			continue;		//Thresold reached: we cannot go further so searching has to stop
+
 	cout << "Records vector has size:" << input_records->size() << endl;
 		//check here that query_label is same as retrieved vertex label
 
@@ -439,7 +458,6 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		results[q].insert_t_NN(duration);
 
 		results[q].set_query_id(q+1);
-		//		multimap<double, int>::iterator it = all_NN_storage.cbegin();
 		
 		for (auto it = all_NN_storage.cbegin(); it != all_NN_storage.cend(); it++){
 			results[q].insert_N_nearest((*it).second, (*it).first);
@@ -469,8 +487,8 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 	int nearest_neighbor_id;
 
 	// for each query
-//	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 2; q++){
+	for (int q = 0; q < queries_count; q++){
+//	for (int q = 0; q < 2; q++){
 		min_distance  = R;
 		bool found_nn = false;
 		
@@ -481,6 +499,12 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 
 		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 		input_records = hcube->retrieve_records_vector(query_label);
+	
+		if(input_records == NULL){
+			cout << "Records vector is empty!" << endl;
+			continue;
+		}
+	
 	cout << "Records vector has size:" << input_records->size() << endl;
 		//check here that query_label is same as retrieved vertex label
 

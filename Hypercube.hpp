@@ -44,7 +44,7 @@ class Hypercube{
 //based on initial_label we create a map with all the possible labels with ham_dist = 1,2,etc
 class Hamming{
 	public:
-		Hamming(string initial_label);
+		Hamming(string initial_label, int probes);
 		~Hamming();
 		
 		int get_usedprobes();

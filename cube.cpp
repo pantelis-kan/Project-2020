@@ -20,14 +20,14 @@ using namespace std;
 using namespace std::chrono;
 
 //default values in case no other given from user
-//		int k = 14, M=10, probes=2, N=1;
-int k = 3, M=50000, probes=2, N=10;
+int k = 14, M=10, probes=2, N=1;
+//int k = 14, M=50000, probes=2, N=10;
 
 double R = 10000.0;
 string filename = "train-images-idx3-ubyte";
 string filename2 = "t10k-images-idx3-ubyte";
 string outputfile = "hypercube_results.txt";
-double w = 4000.0;
+double w = 30000.0;
 
 int M_lsh = pow(2,32/k);
 const long long int m_lsh = 4294967291;
@@ -158,8 +158,8 @@ int main(int argc, char* argv[]){
 	ofstream final_results;
 	final_results.open(outputfile, ios::out | ios::trunc);
 
-//	for (int i = 0; i < queries_count; i++){
-	for (int i = 0; i < 2; i++){
+	for (int i = 0; i < queries_count; i++){
+//	for (int i = 0; i < 2; i++){
 		final_results << "Query: " << results[i].get_query_id() << endl;
 		
         vector <int> temp_N_nearest_id = results[i].get_N_nearest_id();

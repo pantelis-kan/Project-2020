@@ -160,11 +160,11 @@ vector<int>* Hypercube::retrieve_records_vector(string query_label){
 		}
 		
 	}
-
+	return NULL;
 }
 
 
-Hamming::Hamming(string original_label){
+Hamming::Hamming(string original_label, int probes){
 	initial_label = original_label;
 	current_label_in_use = original_label;
 
@@ -178,6 +178,8 @@ Hamming::Hamming(string original_label){
 	string new_label;
 	string temp;
 
+	int counter = 0; //so we can check if we took up to probes value of possible moves
+
 
 	for (int i = 1; i <= length; i++){
 		for(int j = 0; j <= max_value; j++){
@@ -189,6 +191,11 @@ Hamming::Hamming(string original_label){
 				temp = bitset< 32 >( j ).to_string();
 				new_label = temp.substr(32-length);
 				labels_Hamming.emplace_back(pair<string, int>(new_label, i));
+				counter++;
+				if (counter == probes){
+					return;
+				}
+				
 			}
 		}
 	}
