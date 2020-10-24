@@ -182,7 +182,7 @@ int main(int argc, char* argv[]){
 		}
 
 		//print times here also
-		final_results << "tHypercube: " << results[i].get_t_NN() << endl; 
+		final_results << "tLSH: " << results[i].get_t_NN() << endl; 
 		final_results << "tTrue: " << results[i].get_tTrue() << endl;
 
 		final_results << "R-near neighbors:" << endl;		

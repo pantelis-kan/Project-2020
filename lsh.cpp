@@ -163,36 +163,40 @@ int main(int argc, char* argv[]){
 	cout << "Stage 2 completed!" << endl;
 
 	cout << "Stage 3: Exporting results to file" << endl;
+	string exact_NN_fp = "exact_results.txt";
+	Exact_NN_readonly(results, queries_count, N, exact_NN_fp);
+
 	ofstream final_results;
 	final_results.open(outputfile, ios::out | ios::trunc);
 
-//	for (int i = 0; i < queries_count; i++){
-	for (int i = 0; i < 1; i++){
+	for (int i = 0; i < queries_count; i++){
+//	for (int i = 0; i < 1; i++){
 		final_results << "Query: " << results[i].get_query_id() << endl;
 		
         vector <int> temp_N_nearest_id = results[i].get_N_nearest_id();
         vector <double> temp_N_nearest_distance = results[i].get_N_nearest_distance();
-//      vector <double> temp_exact_N_nearest = results[i].get_exact_N_nearest();
+	    vector <double> temp_exact_N_nearest = results[i].get_exact_N_nearest();
         vector <int> temp_Range_nearest = results[i].get_Range_nearest();
 
 		int counter = 1;
 		auto it_distance = temp_N_nearest_distance.cbegin();
-//		auto it_exact_distance = temp_exact_N_nearest.cbegin();
+		auto it_exact_distance = temp_exact_N_nearest.cbegin();
 
 		for(auto it_id = temp_N_nearest_id.cbegin(); it_id != temp_N_nearest_id.cend(); ++it_id){
     		final_results << "Nearest neighbor-" << counter << ": " << *it_id << endl;
 			final_results << "distanceLSH: " << *it_distance << endl;
-//			final_results << "distanceTrue: " << *it_exact_distance << endl;
+			final_results << "distanceTrue: " << *it_exact_distance << endl;
 
 			it_distance++;
-//			it_exact_distance++;
+			it_exact_distance++;
 			counter++;
 		}
 
 		//print times here also
+		final_results << "tHypercube: " << results[i].get_t_NN() << endl; 
+		final_results << "tTrue: " << results[i].get_tTrue() << endl;
 
 
-		final_results << endl;
 		final_results << "R-near neighbors:" << endl;		
 
 		for(auto it_range = temp_Range_nearest.cbegin(); it_range != temp_Range_nearest.cend(); ++it_range){
