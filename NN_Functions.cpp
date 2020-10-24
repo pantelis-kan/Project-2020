@@ -61,13 +61,14 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 
 
 	// for each query
-//	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 1; q++){
+	for (int q = 0; q < queries_count; q++){
+//	for (int q = 0; q < 1; q++){
 
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
 		multimap<double, int> all_NN_storage;
 		double min_distance_previous = 0;
+		auto t1 = std::chrono::high_resolution_clock::now();		
 
 		for(int c = 0; c < N; c++){
 			// for each hash table
@@ -122,6 +123,10 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 				break;
 			}
 		}
+
+		auto t2 = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		results[q].insert_t_NN(duration);
 
 		results[q].set_query_id(q+1);
 		
