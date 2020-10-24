@@ -127,6 +127,7 @@ void Update(Point_Array& input,Cluster* clusters,int k){
 		//cout << "Cluster " << i << " has obj function before update : " << old_obj <<endl;
 		
 		clusters[i].Compute_New_Centroid(input,i);
+		//cout << "Cluster " << i << " updated" << endl;
 		//cout << "Cluster " << i << " has obj function after update : " << clusters[i].Get_Objective()<<endl;
 	
 	}
@@ -613,7 +614,7 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 		query_label = cluster_table.Compute_f(i, k_hypercube, M, m, w, s_params_cube, hcube);
 
 		//Initialize Hamming class needed for the probes. Make and delete for every query
-		Hamming* hamming = new Hamming(query_label);
+		Hamming* hamming = new Hamming(query_label, probes);
 
 		remaining = Max_elements;
 
@@ -622,10 +623,27 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 			//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 			bucket_records = hcube->retrieve_records_vector(query_label);
 
+			while(bucket_records == NULL){
+				cout << "Records vector is empty!" << endl;
+
+				if (hamming->get_usedprobes() == probes)
+					break;		//Thresold reached: we cannot go further so searching has to stop
+				
+				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
+				//Returns the new label of the bucket we move to
+				query_label = hamming->move_to_next();
+				cout << "New query label after probing is: " << query_label << endl;
+				//Change bucket to the next one to be checked
+				bucket_records = hcube->retrieve_records_vector(query_label);
+			
+			}
+
+			
 			int bucket_size = bucket_records->size();
 			cout << "Cluster " << i << " fell in vertex " << query_label << " with size " << bucket_size <<endl;
-			//cout << hamming->get_usedprobes() << "  " << probes_count <<endl;
+			
 			if(bucket_size == 0) continue;
+			
 
 			// for each element in the vertex
 			for(int j = 0; j < bucket_size; j++ ){

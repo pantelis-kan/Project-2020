@@ -124,12 +124,12 @@ void Cluster::Compute_New_Centroid(Point_Array& input,int cluster_num){
 
     */
 
-   int dimension = input.get_dimension();
+    int dimension = input.get_dimension();
 
-   int points_in_cluster = points.size();
-   int nth_position = ceil(points_in_cluster/2); 
+    int points_in_cluster = points.size();
+    int nth_position = ceil(points_in_cluster/2); 
 
-   int coordinates[points_in_cluster]; 
+    int coordinates[points_in_cluster]; 
 
 	// for each dimension
 	for(int i = 0; i < dimension; i++){
@@ -149,7 +149,7 @@ void Cluster::Compute_New_Centroid(Point_Array& input,int cluster_num){
 	}
     
     // compute new objective function
-    Compute_Objective(input);
+    //Compute_Objective(input);
     /*
     cout << "Printing new centroid " <<endl;
     centroid->PrintPoint();
