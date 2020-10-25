@@ -5,8 +5,6 @@
 
 using namespace std;
 
-//std::default_random_engine generator(time(NULL));
-
 Point::Point(){
 	dimension = 784;
 	is_centroid = false;
