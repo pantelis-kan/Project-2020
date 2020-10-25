@@ -37,6 +37,9 @@ std::default_random_engine rand_generator(time(NULL));
 
 int main(int argc, char* argv[]){
 	
+	/******************************************
+	 * Parse execution arguments on runtime.
+	 *****************************************/
 
 	for (int i = 1; i < argc; i+=2){
 		string arg = argv[i];
@@ -91,7 +94,9 @@ int main(int argc, char* argv[]){
 
 	}
 
-
+	/******************************************
+	 * Reading input and query datasets.
+	 *****************************************/
 
 	int input_count = NumberOfPoints(filename);   // number of input points
 	int queries_count = NumberOfPoints(filename2); // number of query points
@@ -112,6 +117,9 @@ int main(int argc, char* argv[]){
 	int dimension = input.get_dimension();
 	cout << endl << "Dimension = "<< dimension <<endl;
 
+	/******************************************
+	 * Building si parameters needed for amplification
+	 *****************************************/
 
 	// s_params for h functions
 	// every h has its own parameters;
@@ -130,6 +138,11 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+	/******************************************
+	 * Building Hypercube and storing input data
+	 * Finding nearest neighbors with approximate and Range methods.
+	 *****************************************/	
+
 	cout << "Step 1: Mapping each image to a vertex" <<endl;
 	
 	Hypercube cube(k);  // k = d'
@@ -139,8 +152,7 @@ int main(int argc, char* argv[]){
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	
-//	cube.print_vertex_table();
-//	cout << "Stage 1 completed in " << duration << " seconds" << endl;
+	cout << "Stage 1 completed in " << duration << " seconds" << endl;
 
 	cout << "Stage 2: Finding Nearest Neighbors" <<endl;
 	Results results[queries_count];
@@ -151,6 +163,10 @@ int main(int argc, char* argv[]){
 
 	cout << "Stage 2 completed!"<<endl;
 
+	/******************************************
+	 * Exporting results to output file with the required format
+	 *****************************************/
+
 	cout << "Stage 3: Exporting results to file" << endl;
 	string exact_NN_fp = "exact_results.txt";
 	Exact_NN_readonly(results, queries_count, N, exact_NN_fp);
@@ -159,7 +175,6 @@ int main(int argc, char* argv[]){
 	final_results.open(outputfile, ios::out | ios::trunc);
 
 	for (int i = 0; i < queries_count; i++){
-//	for (int i = 0; i < 2; i++){
 		final_results << "Query: " << results[i].get_query_id() << endl;
 		
         vector <int> temp_N_nearest_id = results[i].get_N_nearest_id();
@@ -181,7 +196,6 @@ int main(int argc, char* argv[]){
 			counter++;
 		}
 
-		//print times here also
 		final_results << "tLSH: " << results[i].get_t_NN() << endl; 
 		final_results << "tTrue: " << results[i].get_tTrue() << endl;
 
