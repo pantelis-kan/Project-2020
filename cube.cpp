@@ -21,7 +21,6 @@ using namespace std::chrono;
 
 //default values in case no other given from user
 int k = 14, M=10, probes=2, N=1;
-//int k = 14, M=50000, probes=2, N=10;
 
 double R = 10000.0;
 string filename = "train-images-idx3-ubyte";
@@ -29,7 +28,6 @@ string filename2 = "t10k-images-idx3-ubyte";
 string outputfile = "hypercube_results.txt";
 double w = 30000.0;
 
-int M_lsh = pow(2,32/k);
 const long long int m_lsh = 4294967291;
 
 
@@ -93,6 +91,7 @@ int main(int argc, char* argv[]){
 		}
 
 	}
+	int M_lsh = pow(2,32/k);
 
 	/******************************************
 	 * Reading input and query datasets.
@@ -143,7 +142,7 @@ int main(int argc, char* argv[]){
 	 * Finding nearest neighbors with approximate and Range methods.
 	 *****************************************/	
 
-	cout << "Step 1: Mapping each image to a vertex" <<endl;
+	cout << "Stage 1: Mapping each image to a vertex" <<endl;
 	
 	Hypercube cube(k);  // k = d'
 

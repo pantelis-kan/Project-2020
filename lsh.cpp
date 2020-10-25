@@ -18,12 +18,9 @@
 
 using namespace std;
 
-
 double w = 30000.0;
 
-//const long long int m = 536870912;  // 2^29
 const long long int m = 4294967291; // 2^32  - 5
-//const long long int M = 673109;
 
 int N = 1;
 double R = 10000.0;
@@ -32,14 +29,15 @@ string filename = "train-images-idx3-ubyte";
 string filename2 = "t10k-images-idx3-ubyte";
 string outputfile = "lsh_results.txt";
 
-int M = pow(2,32/k);
 
 std::default_random_engine rand_generator(time(NULL));
 
 int main(int argc, char* argv[]){
 
+	/******************************************
+	 * Parse execution arguments on runtime.
+	 *****************************************/
 
-    
 	for (int i = 1; i < argc; i+=2){
 		string arg = argv[i];
 		if (arg == "-d"){
@@ -86,7 +84,13 @@ int main(int argc, char* argv[]){
 
 	}
 
+	int M = pow(2,32/k);
+
 	cout << k << " " << L << " " << N << " " << R << " " <<outputfile <<endl;
+	
+	/******************************************
+	 * Reading input and query datasets.
+	 *****************************************/
 
 	int input_count = NumberOfPoints(filename);   // number of input points
 	int queries_count = NumberOfPoints(filename2); // number of query points
@@ -109,8 +113,9 @@ int main(int argc, char* argv[]){
 	int dimension = input.get_dimension();
 	cout << endl << "Dimension = "<< dimension <<endl;
 	
-	// find Exact NN before approximate
-	//Exact_NN(input,queries,input_count,queries_count);
+	/******************************************
+	 * Building si parameters needed for amplification
+	 *****************************************/
 
 	// every h (h1, h2, ..., hk) has its own parameters for the amplification
 	// definition of si parameter with i = 0,1,...,d-1
@@ -135,6 +140,10 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+	/******************************************
+	 * Building LSHashtable and storing input data
+	 * Finding nearest neighbors with approximate and Range methods.
+	 *****************************************/	
 
 	cout << endl << "--Stage 1: Preprocessing stage...-- "<<endl;
 
@@ -162,6 +171,10 @@ int main(int argc, char* argv[]){
 
 	cout << "Stage 2 completed!" << endl;
 
+	/******************************************
+	 * Exporting results to output file with the required format
+	 *****************************************/
+
 	cout << "Stage 3: Exporting results to file" << endl;
 	string exact_NN_fp = "exact_results.txt";
 	Exact_NN_readonly(results, queries_count, N, exact_NN_fp);
@@ -170,7 +183,6 @@ int main(int argc, char* argv[]){
 	final_results.open(outputfile, ios::out | ios::trunc);
 
 	for (int i = 0; i < queries_count; i++){
-//	for (int i = 0; i < 1; i++){
 		final_results << "Query: " << results[i].get_query_id() << endl;
 		
         vector <int> temp_N_nearest_id = results[i].get_N_nearest_id();
@@ -192,7 +204,6 @@ int main(int argc, char* argv[]){
 			counter++;
 		}
 
-		//print times here also
 		final_results << "tHypercube: " << results[i].get_t_NN() << endl; 
 		final_results << "tTrue: " << results[i].get_tTrue() << endl;
 
@@ -216,7 +227,7 @@ int main(int argc, char* argv[]){
 	}
 	delete[] s_params;
 
-
+	return 0;
 }
 
 

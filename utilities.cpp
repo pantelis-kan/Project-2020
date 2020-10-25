@@ -4,6 +4,9 @@
 
 using namespace std;
 
+/******************************************
+ * Functions related to class Results
+ *****************************************/
 
 Results::Results(){
 
@@ -34,7 +37,6 @@ void Results::insert_t_NN(int t_NN){
     NN_time = t_NN;
 } 
 
-
 void Results::insert_Range_nearest(int nearest_neighbor_id){
 	Range_nearest.emplace_back(nearest_neighbor_id);
 }
@@ -56,6 +58,10 @@ vector <double> Results::get_exact_N_nearest(){
 
 }
 
+/*
+ * Removes possible dublicates
+ * Returns the vector with all the range nearests
+ */
 vector <int> Results::get_Range_nearest(){
     sort(Range_nearest.begin(), Range_nearest.end()); 
     auto last = std::unique(Range_nearest.begin(), Range_nearest.end());
@@ -73,11 +79,12 @@ int Results::get_t_NN(){
 }
 
 
-//----------------------Other various Utilities--------------------------
+/******************************************
+ * Other various Utilities
+ *****************************************/
 
 /* Reversing an integer */
-int reverseInteger (int i) 
-{
+int reverseInteger (int i){
     unsigned char c1, c2, c3, c4;
 
     c1 = i & 255;
@@ -88,9 +95,8 @@ int reverseInteger (int i)
     return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 
-/* ???? */
-int string_mod(string num, int a) 
-{ 
+/* Finding the modulo of a number given in string format */
+int string_mod(string num, int a){ 
     // Initialize result 
     int res = 0; 
   
@@ -102,16 +108,13 @@ int string_mod(string num, int a)
 }
 
 
- int mod( int k,  int n) {
+int mod( int k,  int n) {
     return ((k %= n) < 0) ? k+n : k;
 }
 
 
-
-
-// x^y mod M
-
- int powxy(long long int x, int y,int M){
+/* x^y mod M */
+int powxy(long long int x, int y,int M){
 
 	//cout << "Called with arguments : " << x << "   " << y <<endl;
 	if(y==0) return 1;
@@ -123,9 +126,8 @@ int string_mod(string num, int a)
 }
 
 
-
- int power(long long int x, int y,  int p)  
-{  
+/*Modular exponentiation*/
+int power(long long int x, int y,  int p){  
     int res = 1;     // Initialize result  
   
     x = x % p; // Update x if it is more than or  
@@ -147,6 +149,7 @@ int string_mod(string num, int a)
 	//cout << "Modular exponentiation returning " << res <<endl;
     return res;  
 }  
+
 
 int moduloMultiplication(long long int a, 
                             int b, 
@@ -264,6 +267,7 @@ double FRandomGen(double low, double high, std::default_random_engine generator)
 	
 	return k;
 }
+
 
 int partition (int* arr, int low, int high) 
 { 
