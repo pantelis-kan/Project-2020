@@ -80,24 +80,6 @@ void Point::AddtoPoint(int pos, int val){
 		
 	}
 
-	/*
-	for(int j = Dimension-1; j >= 0; j--){
-		int power_m = power(m,k,M);
-		//cout << "powxy returned " << power_m <<endl;
-
-		int coeff_param = mod(coeff[j],M);
-		//cout << "coeff[j] " << coeff[j]<< " mod M = " << coeff_param <<endl;
-
-
-		//result = moduloMultiplication(power_m, coeff[j]%M, M); // (m^k mod M * aj mod M ) mod M
-		result = mod(bigMod(power_m , coeff_param,M) , M);
-		
-		//cout << "Adding " << result <<endl;
-		hash += (result % M); 
-		++k;
-	}
-	*/
-
 	delete[] coeff;
 	coeff = NULL;
 	return (hash % M);
