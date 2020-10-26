@@ -12,7 +12,7 @@ class Point_Array;
 
 using namespace std;
 
-/* Collection of k vertices
+/* Collection of 2^k vertices
 */
 class Hypercube{
 	public:
@@ -57,7 +57,6 @@ class Hamming{
 		string initial_label;
 		string current_label_in_use;
 		int used_probes = 0;		//everytime we use hamming we add a probe so we can stop when thresold is reached
-//		map<string, int> labels_Hamming;			//label, ham_dist; 
 		vector <pair <string, int> > labels_Hamming;
 
 };

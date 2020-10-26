@@ -11,7 +11,7 @@ using namespace std::chrono;
 
 /* 	Assigns all images to buckets
 	int input_count : is the number of total images in the input 
-	int TableSize :
+	int TableSize : the size of the hashtable
 	double** s_params: it's the s(i) necessary for the aplification of LSH
 */
 void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int input_count, int TableSize, double** s_params, int L, 
@@ -52,7 +52,10 @@ void Preprocessing(Hash_Table** H_Tables, Point_Array& input, int input_count, i
 
 
 
-
+/* 	Searches for up to N nearest neghbors
+	Stores results to temporary structure
+	Returns results through class Results
+*/
 void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& input, Point_Array& queries,
 				int queries_count,int TableSize, double** s_params,int L,int k,int M, long long int m, double w, int N){
 
@@ -62,14 +65,15 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 
 	// for each query
 	for (int q = 0; q < queries_count; q++){
-//	for (int q = 0; q < 1; q++){
 
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
-		multimap<double, int> all_NN_storage;
-		double min_distance_previous = 0;
+		multimap<double, int> all_NN_storage; //temporary storage of results
+		double min_distance_previous = 0;	//to avoid taking everytime the minimum -> we set the minimum to the latest found
+
 		auto t1 = std::chrono::high_resolution_clock::now();		
 
+		//for up to N neighbors (we may stop earlier)
 		for(int c = 0; c < N; c++){
 			// for each hash table
 			for (int l = 0; l < L; l++){
@@ -77,17 +81,12 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 				// find the position of the query in the lth hash table
 				query_bucket_position = queries.Compute_g(q, k, M, m, w, TableSize, s_params, l);
 
-				//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
-
 				// find how many elements the bucket has
 				int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
 
 				// if the query fell on an empty bucket, ignore
 				if (size_of_bucket == 0) continue; 
 
-				
-
-				//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
 				// for each element in the bucket
 				for(int i = 0; i < size_of_bucket; i++ ){
 
@@ -101,7 +100,8 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 
 					// compute Manhattan Distance for the query and the popped id
 					double distance = Distance(query_point,input_point,1); 
-					//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
+
+					//check if the input we retrieved is a suitable nearest neighbor
 					if (distance < min_distance && distance > min_distance_previous){
 						min_distance = distance;
 						nearest_neighbor_id = id;
@@ -111,6 +111,7 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 				}
 			}	
 
+			//if a nearest neighbor was found then store it and reset values to continue to next one
 			if(found_nn == true){
 				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 				//make a multimap and insert there. then in the end results take N from there
@@ -126,6 +127,8 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 
 		auto t2 = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+		//store findings to results, after completing the search.
 		results[q].insert_t_NN(duration);
 
 		results[q].set_query_id(q+1);
@@ -134,7 +137,7 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 			results[q].insert_N_nearest((*it).second, (*it).first);
 		}
 
-		//check if empty, means that no nearest found which is weird
+		//check if empty, means that no nearest found
 		if (all_NN_storage.empty()){
 			cout << "No Approximate nearest found for query image: " << q+1 << endl; 
 		}
@@ -146,13 +149,15 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 }
 
 
+/* 	Searches for all images that are up to R range far from the query
+	Returns results through class Results
+*/
 void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& input, Point_Array& queries, int queries_count, int TableSize, double** s_params,int L, int k, int M, long long int m, double w, double R){
 	int query_bucket_position, nearest_neighbor_id;
 	double min_distance;
 
 	// for each query
-//	for (int q = 0; q < queries_count; q++){
-	for (int q = 0; q < 1; q++){
+	for (int q = 0; q < queries_count; q++){
 
 		bool found_nn;
 		multimap<double, int> all_NN_storage;
@@ -163,16 +168,12 @@ void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& inpu
 			// find the position of the query in the lth hash table
 			query_bucket_position = queries.Compute_g(q, k, M, m, w, TableSize, s_params, l);
 
-			//cout << "Query id " << q+1 << " fell into bucket " << query_bucket_position <<endl;
-
 			// find how many elements the bucket has
 			int size_of_bucket = H_Tables[l]->SizeofBucket(query_bucket_position);
 
 			// if the query fell on an empty bucket, ignore
 			if (size_of_bucket == 0) continue; 
 
-
-			//cout << "Bucket " << query_bucket_position <<  " of g" <<l<< " has " << size_of_bucket << " elements "<<endl; 
 			// for each element in the bucket
 			for(int i = 0; i < size_of_bucket; i++ ){
 
@@ -186,10 +187,8 @@ void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& inpu
 
 				// compute Manhattan Distance for the query and the popped id
 				double distance = Distance(query_point,input_point,1); 
-				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
 				if (distance < min_distance){
 					nearest_neighbor_id = id;
-					cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << distance <<endl;
 					results[q].insert_Range_nearest(nearest_neighbor_id);
 				}
 
@@ -200,9 +199,10 @@ void LSH_Range_Search(Results* results, Hash_Table** H_Tables, Point_Array& inpu
 	}
 }
 
-//Exact_NN is prerun (because it takes long time) and results are stored in a .txt file
-//This function reads from the file the N required number of Exact NN for every query. 
-//N can be up to 50 neigbhors. For more N/A appears next to the result
+/*	Exact_NN is prerun (because it takes long time) and results are stored in a .txt file
+	This function reads from the file the N required number of Exact NN for every query. 
+	N can be up to 50 neighbors. For more -1 appears next to the result
+*/
 void Exact_NN_readonly(Results* results, int queries_count, int N, string& input_fp){
 	string line;
 	int nearest_neighbor_id;
@@ -217,7 +217,6 @@ void Exact_NN_readonly(Results* results, int queries_count, int N, string& input
 	}
 
 	for (int i = 0; i < queries_count; i++){
-//	for (int i = 0; i < 2; i++){
 		for (int j = 0; j < 50; j++){
 			getline(myfile, line);
 			istringstream iss(line);
@@ -239,14 +238,14 @@ void Exact_NN_readonly(Results* results, int queries_count, int N, string& input
 
 }
 
-
+/* 	Finding 50 exact nearest neghbors for every query
+	Saves the tTrue time
+*/
 void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int queries_count, ofstream& outfile,int* time_passed){
 
 	int nearest_neighbor_id;
 	double min_distance;
 	double distance;
-
-	int num_of_points = input_count/4;
 
 	long double dist_sum = 0.0;
 	
@@ -255,7 +254,6 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int que
 	
 	for(int j = 0; j < queries_count; j++){
 		auto t1 = std::chrono::high_resolution_clock::now();
-		//min_distance = std::numeric_limits<double>::max();
 		Point& query_point = queries.Retrieve(j);
 
 		for(int i = 0; i < input_count; i++){
@@ -283,13 +281,12 @@ void Exact_NN(Point_Array& input, Point_Array& queries, int input_count, int que
 
 	}
 
-
-	//cout << "distance sum : " << dist_sum <<endl;
-	//cout << "Best w : " << dist_sum/input_count << endl;
-
 }
 
 
+/* 	Computes w in a brute force way
+	Takes a lot of time so it has not been finally used
+*/
 double compute_w(Point_Array& input, int input_count){
 	double distance_sum = 0.0;
 	double distance_a_b = 0.0;
@@ -299,20 +296,6 @@ double compute_w(Point_Array& input, int input_count){
 	Point* image_b;
 
 	cout << "Calculating started now!!" << endl;
-//    auto start = high_resolution_clock::now(); 
-
-/*
-	for (int i = 0; i < input_count; i++){
-		image_a = input.Retrieve_ptr(i);
-		cout << "we are at " << i << endl;
-		for (int j = i+1; j < input_count; j++){
-			image_b = input.Retrieve_ptr(j);
-			distance_a_b = Distance(*image_a, *image_b, 1);
-			distance_sum += distance_a_b;
-			count_of_sums++;
-		}
-	}
-*/
 
 	for (int i = 0; i < input_count; i += 2){
 		image_a = input.Retrieve_ptr(i);
@@ -326,27 +309,27 @@ double compute_w(Point_Array& input, int input_count){
 
 	cout << "average distance is:" << distance_sum/count_of_sums << endl;
 	cout << "count of sums:" << count_of_sums << endl;
-  //  auto stop = high_resolution_clock::now(); 
-
-//	auto duration = duration_cast(stop - start); 
-  
-//    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
 
 	return distance_sum/count_of_sums;
 
 }
 
 
-//probably change it so it returns a pointer to array storing the results for N nearest neibhors?
+
+/* 	Searching up to N nearest neighbors
+	Stopping in case thresholds are reached: used_probes = probes, and M = count_images_checked
+*/
 void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
 	string query_label;
 	vector<int> *input_records;
 	double min_distance;
 	int nearest_neighbor_id;
 
-	// for each query
+
+	/******************************************
+	 * For each query
+	 *****************************************/
 	for (int q = 0; q < queries_count; q++){
-//	for (int q = 0; q < 2; q++){
 		
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
@@ -358,33 +341,30 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		//Initialize Hamming class needed for the probes. Make and delete for every query
 		Hamming* hamming = new Hamming(query_label, probes);
 
-	cout << "Query label is: " << query_label << endl;
-
 		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 		input_records = hcube->retrieve_records_vector(query_label);
 
+		//if bucket is empty then we probe and go to the next one
 		while(input_records == NULL){
 			cout << "Records vector is empty!" << endl;
 
 			if (hamming->get_usedprobes() == probes)
 				break;		//Thresold reached: we cannot go further so searching has to stop
 			
-				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
-				//Returns the new label of the bucket we move to
-				query_label = hamming->move_to_next();
-				cout << "New query label after probing is: " << query_label << endl;
-				//Change bucket to the next one to be checked
-				input_records = hcube->retrieve_records_vector(query_label);
+
+			//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
+			//Returns the new label of the bucket we move to
+			query_label = hamming->move_to_next();
+			cout << "New query label after probing is: " << query_label << endl;
+			//Change bucket to the next one to be checked
+			input_records = hcube->retrieve_records_vector(query_label);
 			
 		}
 
 		if (hamming->get_usedprobes() == probes)
-			continue;		//Thresold reached: we cannot go further so searching has to stop
+		continue;		//Thresold reached: we cannot go further so searching has to stop
 
-	cout << "Records vector has size:" << input_records->size() << endl;
-		//check here that query_label is same as retrieved vertex label
 
-		// if the query fell on an empty bucket, ignore or .........?
 
 		Point& query_image = queries.Retrieve(q);
 		int count_images_checked = 0;
@@ -392,7 +372,12 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		int count_found_nn = 0;
 		auto t1 = std::chrono::high_resolution_clock::now();		
 
-		//Finding N Nearest Neibhors until found or thresolds are met (max probes and/or max images M)
+
+
+		/******************************************
+		 * Finding N Nearest Neighbors until found 
+		 * or until thresolds are met (max probes and/or max images M) 
+		 *****************************************/
 		for(int c=0; c < N; c++){
 			found_nn = false;
 			
@@ -406,8 +391,6 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 				// compute Manhattan Distance for the query and the popped id
 				double distance = Distance(query_image, input_image, 1); 
 
-				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
-				
 				//Checking for a NN excluding the previously found one
 				//Else means that we have already taken all of them so we need to move to another vertex
 				if (distance < min_distance && distance > min_distance_previous){
@@ -425,7 +408,6 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 					break;
 			}
 			if(found_nn == true){
-				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 				//make a multimap and insert there. then in the end results take N from there
   				all_NN_storage.insert( pair<double, int>(min_distance, nearest_neighbor_id) );
 				min_distance_previous = min_distance;
@@ -447,7 +429,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 				//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
 				//Returns the new label of the bucket we move to
 				query_label = hamming->move_to_next();
-				cout << "New query label after probing is: " << query_label << endl;
+
 				//Change bucket to the next one to be checked
 				input_records = hcube->retrieve_records_vector(query_label);
 				min_distance_previous = 0;
@@ -457,6 +439,12 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 			}
 
 		}
+
+
+
+		/******************************************
+		 * Inserting final results to class Results
+		 *****************************************/
 
 		auto t2 = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -468,7 +456,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 			results[q].insert_N_nearest((*it).second, (*it).first);
 		}
 
-		//check if empty, means that no nearest found which is weird
+		//check if empty, means that no nearest found
 		if (all_NN_storage.empty()){
 			cout << "No Approximate nearest found for query image: " << q+1 << endl; 
 		}
@@ -478,29 +466,27 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 
 	}
 
-
-
-
 }
 
 
-
+/* 	Searching all neighbors in a specific R range
+	Stopping in case threshold is reached: and M = count_images_checked
+*/
 void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, int input_count, Point_Array& queries, int queries_count, double** s_params, int M_lsh, long long int m_lsh, double w, int k, int M, int probes, int N, double R){
 	string query_label;
 	vector<int> *input_records;
 	double min_distance;
 	int nearest_neighbor_id;
 
-	// for each query
+	/******************************************
+	 * For each query
+	*****************************************/
 	for (int q = 0; q < queries_count; q++){
-//	for (int q = 0; q < 2; q++){
 		min_distance  = R;
 		bool found_nn = false;
 		
 		// find the position of the query in the cube table
 		query_label = queries.Compute_f(q, k, M_lsh, m_lsh, w, s_params, hcube);
-
-	cout << "Query label is: " << query_label << endl;
 
 		//retrieve pointer to a Vertex which is the actual bucket corresponding to the query_label
 		input_records = hcube->retrieve_records_vector(query_label);
@@ -510,16 +496,14 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 			continue;
 		}
 	
-	cout << "Records vector has size:" << input_records->size() << endl;
-		//check here that query_label is same as retrieved vertex label
-
-		// if the query fell on an empty bucket, ignore or .........?
-
 		Point& query_image = queries.Retrieve(q);
 		int count_images_checked = 0;
 		double min_distance_previous = 0;
 
-		//Finding all Neibhors inside a specific range R or thresolds are met (max images M)
+		/******************************************
+		 * Finding all Neighbors inside a specific range R
+		 * or until thresold is met (max images M) 
+		 *****************************************/
 		for(int c=0; c < input_records->size(); c++){
 			found_nn = false;
 			
@@ -533,8 +517,6 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 				// compute Manhattan Distance for the query and the popped id
 				double distance = Distance(query_image, input_image, 1); 
 
-				//cout << "Computed distance from point " << q+1 << " to point " << id-1 << " = " << distance <<endl;
-				
 				//Checking for a NN inside the range excluding the previously found one
 				//Else means that we have already taken all of them so we need to move to another vertex
 				if (distance < min_distance && distance > min_distance_previous){
@@ -569,12 +551,7 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 
 		}
 
-		cout << "Total images checked before stopping:" << count_images_checked << endl;
-
 	}
-
-
-
 
 
 }

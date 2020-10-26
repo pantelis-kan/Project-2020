@@ -26,7 +26,7 @@ class Point{
 		void set_coordinate(int pos,int val); // sets 'val' as a coordinate in position 'pos'
 		
 		// computes h_currentk(x) hash value for the point x. 0 <= currentk <= k
-		 int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
+		int LSH_Manhattan(int M, const long long int m, double w, double** s_params,int current_k);
 
 		// returns the distance between two points with a specific metric
 		friend double Distance(Point& p1, Point& p2, int metric); 

@@ -4,16 +4,20 @@
 
 #include "Point_Table.hpp"
 
-
 using namespace std;
 
 default_random_engine generator;
 
 
-//default_random_engine rand_generator(time(NULL));
+/******************************************
+ * Functions related to class Hypercube
+ *****************************************/
 
+/*
+ * Creates Hypercube with vertex_table size 2^k
+ */
 Hypercube::Hypercube(int k){
-	//create Hypercube with vertex_table size 2^k
+	
 	vertex_t_size = pow(2,k);
 	vertex_table = new Vertex[vertex_t_size];
 	
@@ -26,27 +30,26 @@ Hypercube::~Hypercube(){
 }
 
 
-//internally manages the hashing, mapping and insertion of points
+/*
+ * internally manages the hashing, mapping and insertion of points
+ */
 void Hypercube::Map_images(Point_Array& input, int N, int k, double** s_params, 
 					int M, long long int m, double w, Hypercube* hcube){
 
 	string label;
 
-
-
 	//Run compute_f : Returns the necessary bitstring (necessary hashvalue)
-	//Insert label and id to vertex
-	
+	//Insert label and id to vertex	
 	for (int i = 0; i < N; i++){
 		label = input.Compute_f(i, k, M, m, w, s_params, hcube);
 		Insert(label, i+1);
 	}
-	
 
 }
 
-
-//inserting image with id in label=tag
+/* 
+ * Inserting image with id in label=tag
+ */
 void Hypercube::Insert(string label, int id){
 	int i = 0;
 	if(vertex_t_size == 0){
@@ -97,7 +100,6 @@ char Hypercube::Insert_to_F(int h){
 	it = F_function.find(h); 
 	
 	if(it == F_function.end()){
-//		cout << "Key-value pair not present in map" << endl ;
 		if(coin == 0){
 			binary_value= '0';
 		}
@@ -112,12 +114,13 @@ char Hypercube::Insert_to_F(int h){
 		return binary_value;
 	}
 	else{
-//		cout << "Key-value pair present : " << it->first << "->" << it->second << endl;
 		return it->second; 
 	}	
 }
 
-//searches vertex_table and returns position, if not found returns -1
+/*
+ * searches vertex_table and returns position, if not found returns -1
+ */
 string Hypercube::Search_by_label(string label){
 	string not_found;
 	not_found = "-1";
@@ -164,6 +167,14 @@ vector<int>* Hypercube::retrieve_records_vector(string query_label){
 }
 
 
+/******************************************
+ * Functions related to class Hamming
+ *****************************************/
+
+/*
+ * Creates up to probes different labels in hamming distance (dist=1,2,..) 
+ * so we can move to next if needed
+ */
 Hamming::Hamming(string original_label, int probes){
 	initial_label = original_label;
 	current_label_in_use = original_label;
@@ -200,9 +211,6 @@ Hamming::Hamming(string original_label, int probes){
 		}
 	}
 
-//	print();
-	
-
 }
 
 Hamming::~Hamming(){
@@ -226,6 +234,9 @@ void Hamming::print(){
 
 }
 
+/* 
+ * Moves to next available, closest to query_label vertice
+ */
 string Hamming::move_to_next(){
 	used_probes++;
 	auto it = labels_Hamming.cbegin();

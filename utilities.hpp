@@ -48,7 +48,9 @@ class Results{
 
 
 
-//----------------------Other various Utilities--------------------------
+/******************************************
+ * Other various Utilities
+ *****************************************/
 
 
 int modular(int base,unsigned int exp , unsigned int mod);

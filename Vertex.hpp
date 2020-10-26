@@ -11,7 +11,7 @@ using namespace std;
 class Vertex{
 
 	public:
-		Vertex();	//initialize all vertex labels?
+		Vertex();
 		~Vertex();
 
 		string Get_label();
