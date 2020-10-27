@@ -391,7 +391,7 @@ void Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,bool lsh){
 
 	while(not_converged == true){
 		++loops;
-		if(loops > 40) break;
+		if(loops > 50) break;
 
 		cout << endl << "Loop " << loops << endl;
 		old_assigned = new_assigned;
@@ -699,7 +699,7 @@ bool Hypercube_Reverse_Assignment(Point_Array& input,Cluster* clusters,int k,dou
 
 		remaining = Max_elements;
 		
-
+		delete hamming;
 	}
 
 	
