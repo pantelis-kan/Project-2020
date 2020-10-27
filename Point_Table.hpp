@@ -33,8 +33,9 @@ class Point_Array{
 		// compute g(x) , by concatenation of h1(x)...hk(x)
 		int Compute_g(int position,int k,int M, const long long int m, double w,int tablesize, double** s_params,int l); 
 
-		//compute f(x) by making a bitstring derived by the k LSH values produced. It saves the mapping for future use e.g. 40->1, 60->0 etc etc
-		string Compute_f(int position, int k, int M, const long long int m,	double w, double** s_params, Hypercube* hcube);
+		// used by the Hypercube structure. Computes f1(x)...fd'(x)
+		string Compute_f(int position, int k, int M, const long long int m, 
+					double w, double** s_params, Hypercube* hcube);
 
 		Point& Retrieve(int position);
 		Point* Retrieve_ptr(int position);

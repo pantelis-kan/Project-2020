@@ -59,71 +59,6 @@ void Cluster::Assign_Point(int id){
 
 void Cluster::Compute_New_Centroid(Point_Array& input,int cluster_num){
 
-	/*
-	int points_in_cluster = points.size();
-    int min_centroid;
-    double min_distance = std::numeric_limits<double>::max();
-    int next_id;
-
-    if(points_in_cluster == 0) return;
-
-    
-
-    int old_centroid_id = centroid_id;
-    cout << "Old centroid id = "<< old_centroid_id <<endl;
-
-    //cout << "Before loop ok" <<endl;
-
-    int dimension = this->centroid->get_dimension();
-
-    for(int j = 0; j < points_in_cluster; j++){
-
-        long double sum = 0;
-        
-
-        next_id = points.at(j);
-        Point& possible_centroid = input.Retrieve(next_id);
-        Point& centr = *centroid;
-
-        sum += Distance(centr,possible_centroid,1);
-
-        for(int m = 0; m < points_in_cluster; m++){
-            if(m == j) continue;
-
-            int id = points.at(m);
-            Point& pt = input.Retrieve(id);
-
-            sum += Distance(pt,possible_centroid,1);
-        }
-
-        if(sum < min_distance){
-            min_distance = sum;
-            min_centroid = next_id;
-        }
-    }
-
-    // 5)
-    if(min_distance < objective_function_value){
-
-        objective_function_value = min_distance;
-
-        cout << "Found min < obj_function = " << min_distance <<endl;
-        cout << "New centroid id = " << next_id << endl;
-        Point* new_centroid = input.Retrieve_ptr(next_id);
-        new_centroid->set_centroid(true);
-
-        Remove_Point(next_id);
-        Assign_Point(old_centroid_id);
-        
-        centroid->set_centroid(false);
-        centroid->Assign_Cluster(cluster_num);
-
-        centroid = new_centroid;
-        centroid_id = next_id;
-    }
-
-    */
-
     int dimension = input.get_dimension();
 
     int points_in_cluster = points.size();
@@ -148,12 +83,6 @@ void Cluster::Compute_New_Centroid(Point_Array& input,int cluster_num){
 		centroid->set_coordinate(i,coordinates[nth_position]);
 	}
     
-    // compute new objective function
-    //Compute_Objective(input);
-    /*
-    cout << "Printing new centroid " <<endl;
-    centroid->PrintPoint();
-    */
 }
 
 
