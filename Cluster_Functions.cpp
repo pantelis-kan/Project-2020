@@ -148,11 +148,11 @@ bool Loyds_Assign(Point_Array& input,Cluster* clusters,int k,int* assigned){
 
 	// for each point
 	for(int i = 0; i < input_points; i++){
-
+		
 		min_distance = std::numeric_limits<double>::max();
 
 		Point& point = input.Retrieve(i);
-		if(point.check_centroid() == true) continue;
+		//if(point.check_centroid() == true) continue;
 
 		// for each cluster
 		for(int j = 0; j < k; j++){
@@ -779,7 +779,8 @@ void Silhouette(Point_Array& input,Cluster* clusters,int k,double* s,double* s_t
 			//cout << min_distance << " " << second_nearest << endl;
 		}
 
-		//cout << i << " before average "<<endl;
+		//cout << nearest << "  " << second_nearest <<endl;
+		
 		double average_nearest = Average_Distance(input,pt,clusters[nearest]);
 		double average_second_nearest = Average_Distance(input,pt,clusters[second_nearest]);
 		//cout << i << " after average "<<endl;

@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
 
 	double time = (double)duration;
 
-	double s[input.get_ArraySize()];
+	double* s = new double[input.get_ArraySize()];
 	cout << endl << "Starting silhouette " <<endl;
 
 	double s_total;
@@ -114,6 +114,7 @@ int main(int argc, char* argv[]){
 	Output_Results(input,clusters,k,s,outputfile,method,time,s_total,complete);
 
 	delete[] clusters;
+	delete[] s;
 }
 
 
