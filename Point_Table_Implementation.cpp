@@ -70,7 +70,7 @@ int Point_Array::FillPoints(string &input_fp){
 	num_cols = reverseInteger(num_cols);
 	
 	//cout << "Magic Number is:" << magic_number << endl;
-	cout << "Number of images is:" << number_of_images << endl;
+	//cout << "Number of images is:" << number_of_images << endl;
 	//cout << "Number of rows is:" << num_rows << endl;
 	//cout << "Number of columns is:" << num_cols << endl;
 
