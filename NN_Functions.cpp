@@ -113,14 +113,14 @@ void LSH_Nearest_Neighbors(Results* results, Hash_Table** H_Tables,Point_Array& 
 
 			//if a nearest neighbor was found then store it and reset values to continue to next one
 			if(found_nn == true){
-				cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				//cout << "Approximate NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 				//make a multimap and insert there. then in the end results take N from there
   				all_NN_storage.insert( pair<double, int>(min_distance, nearest_neighbor_id) );
 				min_distance_previous = min_distance;
 				min_distance  = numeric_limits<double>::max();
 			}
 			else{
-				cout << "Could not find any other approximate nearest neighbor for query " << q+1 <<endl;
+				//cout << "Could not find any other approximate nearest neighbor for query " << q+1 <<endl;
 				break;
 			}
 		}
@@ -223,7 +223,7 @@ void Exact_NN_readonly(Results* results, int queries_count, int N, string& input
         	iss >> nearest_neighbor_id >> tTrue;
 			results[i].insert_exact_N_nearest(nearest_neighbor_id);
 		}
-    	cout << nearest_neighbor_id << " " << tTrue << endl;	
+
 		results[i].insert_tTrue(tTrue);
 		if (N > 50){
 			int remaining = N - 50;
@@ -330,7 +330,8 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 	 * For each query
 	 *****************************************/
 	for (int q = 0; q < queries_count; q++){
-		
+		auto t1 = std::chrono::high_resolution_clock::now();
+
 		min_distance  = std::numeric_limits<double>::max();
 		bool found_nn = false;
 		multimap<double, int> all_NN_storage;
@@ -346,7 +347,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 
 		//if bucket is empty then we probe and go to the next one
 		while(input_records == NULL){
-			cout << "Records vector is empty!" << endl;
+			//cout << "Records vector is empty!" << endl;
 
 			if (hamming->get_usedprobes() == probes)
 				break;		//Thresold reached: we cannot go further so searching has to stop
@@ -355,7 +356,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 			//move_to_next: should actually check next in map, change the current_in_use and increase used_probes
 			//Returns the new label of the bucket we move to
 			query_label = hamming->move_to_next();
-			cout << "New query label after probing is: " << query_label << endl;
+			//cout << "New query label after probing is: " << query_label << endl;
 			//Change bucket to the next one to be checked
 			input_records = hcube->retrieve_records_vector(query_label);
 			
@@ -370,7 +371,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		int count_images_checked = 0;
 		double min_distance_previous = 0;
 		int count_found_nn = 0;
-		auto t1 = std::chrono::high_resolution_clock::now();		
+		
 
 
 
@@ -462,7 +463,7 @@ void Cube_Nearest_Neighbors(Results* results, Hypercube* hcube, Point_Array& inp
 		}
 
 		delete hamming;	
-		cout << "Total images checked before stopping:" << count_images_checked << endl;
+		//cout << "Total images checked before stopping:" << count_images_checked << endl;
 
 	}
 
@@ -492,7 +493,7 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 		input_records = hcube->retrieve_records_vector(query_label);
 	
 		if(input_records == NULL){
-			cout << "Records vector is empty!" << endl;
+			//cout << "Records vector is empty!" << endl;
 			continue;
 		}
 	
@@ -535,7 +536,7 @@ void Cube_Range_Search(Results* results, Hypercube* hcube, Point_Array& input, i
 			}
 
 			if(found_nn == true){
-				cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
+				//cout << "Range NN for query " << q+1 << " = " << nearest_neighbor_id << " with distance " << min_distance <<endl;
 				results[q].insert_Range_nearest(nearest_neighbor_id);
 				
 				min_distance_previous = min_distance;
