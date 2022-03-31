@@ -4,11 +4,12 @@
 The program describes the development of search and clustering algorithms of properly
 patterned images in vector form.
 The search was performed with the LSH algorithm based on the Manhattan metric (L1), as well as
-the random projection algorithm in the hypercube for the same metric. Taking as
+the random projection algorithm in the hypercube for the same metric. Taking as 
 input vector q and integers N and R, the program returns:
-a) The nearest neighbor to q,
-b) The N nearest neighbors to q and
-c) The vectors within radius R from q (range search).
+
+- The nearest neighbor to q,
+- The N nearest neighbors to q and
+- The vectors within radius R from q (range search).
 
 
 For the clustering algorithm, the initialization k-means ++ was used. With the
@@ -17,8 +18,8 @@ initialization, the points of the dataset that are furthest away from each other
 of the centroids, the k-medians technique was used. In the assignment step
 used:
 
-a) The classic Lloyd’s algorithm,
-b) The reverse assignment with LSH, or Random view (depending on the parameters
+- The classic Lloyd’s algorithm,
+- The reverse assignment with LSH, or Random view (depending on the parameters
 of the program).
 
 # Compilation instructions
